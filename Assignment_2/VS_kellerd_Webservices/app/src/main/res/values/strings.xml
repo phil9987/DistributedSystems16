@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">VS_kellerd_Webservices</string>
+    <string name="rest_button">Open RESTful Activity</string>
+    <string name="ws_button">Open WS-* Activity</string>
+    <string name="server_button">Open Server Acitivty</string>
 </resources>

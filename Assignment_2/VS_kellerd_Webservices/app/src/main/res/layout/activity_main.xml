@@ -15,17 +15,20 @@
         android:id="@+id/rest_button"
         android:text="@string/rest_button"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:onClick="onRESTButtonClick"/>
 
     <Button
         android:id="@+id/ws_button"
         android:text="@string/ws_button"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:onClick="onWSButtonClick" />
 
     <Button
         android:id="@+id/server_button"
         android:text="@string/server_button"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:onClick="onServerButtonClick" />
 </LinearLayout>

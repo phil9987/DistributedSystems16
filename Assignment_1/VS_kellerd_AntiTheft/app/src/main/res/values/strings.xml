@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">VS_kellerd_AntiTheft</string>
+    <string name="activate_lock">Activate lock</string>
+    <string name="locked">Phone protection by VS AntiTheft</string>
+    <string name="sensDefault">50</string>
+    <string name="delayDefault">5</string>
+    <string name="Hint">Don't forget to lock your phone after starting the AntiTheft service ;-)</string>
+</resources>

@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">VS_kellerd_BleSensirion</string>
+    <string name="bluetooth_le_not_supported">Your device doesn\'t support Bluetooth LE</string>
+    <string name="main_activity_title">Bluetooth LE Sensirion</string>
+    <string name="sensirion_device_list">Available \"Smart Humigadget\" Devices</string>
+    <string name="no_device_selected">There was no device selected</string>
+    <string name="ble_needed">Bluetooth must be enabled for this app</string>
+    <string name="location_needed">Location must be enabled for this app</string>
+    <string name="restart_button">Restart search</string>
+    <string name="enable_location">Please enable Location needed to search for devices</string>
+</resources>

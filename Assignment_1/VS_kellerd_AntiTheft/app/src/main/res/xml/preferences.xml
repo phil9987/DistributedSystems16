@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
+        android:defaultValue="@string/sensDefault"
+        android:selectAllOnFocus="true"
+        android:title="Sensitivity"
+        android:key="sensitivity"
+        android:summary="Values in 10-100. Smaller means more sensitive"
+        android:numeric="integer" />
+    <EditTextPreference
+        android:defaultValue="5"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="Delay"
+        android:summary="Time until alarm rings [s]"
+        android:key="delay"
+        android:numeric="integer" />
+    <SwitchPreference
+        android:defaultValue="false"
+        android:title="Advanced movement detection"
+        android:key="advanced"
+        android:summary="Use developers detector" />
+</PreferenceScreen>

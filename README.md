@@ -2,6 +2,6 @@
 
 Verteilung Assignment 2:
 
-1. -
+1. David
 2. - 
 3. -

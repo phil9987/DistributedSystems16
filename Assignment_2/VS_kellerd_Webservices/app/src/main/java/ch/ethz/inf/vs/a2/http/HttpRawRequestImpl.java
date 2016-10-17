@@ -1,4 +1,4 @@
-package ch.ethz.inf.vs.a2.kellerd.vs_kellerd_webservices;
+package ch.ethz.inf.vs.a2.http;
 
 import ch.ethz.inf.vs.a2.http.HttpRawRequest;
 

@@ -7,10 +7,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ch.ethz.inf.vs.a2.http.HttpRawRequest;
-import ch.ethz.inf.vs.a2.solution.http.HttpRawRequestImpl;
+import ch.ethz.inf.vs.a2.kellerd.vs_kellerd_webservices.HttpRawRequestImpl;
 
 
-public class HttpRawRequestTests{
+public class HttpRawRequestTests {
 
 	private final int TEST_PORT = 1234;
 	private final String TEST_HOST = "somehost.tld";

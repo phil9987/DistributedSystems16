@@ -27,7 +27,7 @@ public class RESTActivity extends AppCompatActivity
     /*
      * Implement ch.ethz.inf.vs.a2.sensor.SensorListener
      */
-    
+
     @Override
     public void onReceiveSensorValue(double value) {
         mTemperatureTextView.setText("Temperature: " + value + "˚C");

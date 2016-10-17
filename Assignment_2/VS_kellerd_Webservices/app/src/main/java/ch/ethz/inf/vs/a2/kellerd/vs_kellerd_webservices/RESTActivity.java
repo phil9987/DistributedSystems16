@@ -6,6 +6,7 @@ import android.widget.TextView;
 
 import ch.ethz.inf.vs.a2.sensor.AbstractSensor;
 import ch.ethz.inf.vs.a2.sensor.RawHttpSensor;
+import ch.ethz.inf.vs.a2.sensor.TextSensor;
 
 public class RESTActivity extends AppCompatActivity
         implements ch.ethz.inf.vs.a2.sensor.SensorListener {
@@ -28,7 +29,7 @@ public class RESTActivity extends AppCompatActivity
         mTemperatureTextView.setText("");
         mDebugTextView.setText("");
 
-        sensor = new RawHttpSensor();
+        sensor = new TextSensor();
     }
 
     @Override

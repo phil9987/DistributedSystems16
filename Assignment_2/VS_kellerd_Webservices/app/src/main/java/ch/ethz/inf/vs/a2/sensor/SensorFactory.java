@@ -16,9 +16,9 @@ public abstract class SensorFactory {
 		case TEXT:
 			// return Sensor implementation using text/html representation
 			return new TextSensor();
-//		case JSON:
-//			// return Sensor implementation using application/json representation
-//			return new JsonSensor();
+		case JSON:
+			// return Sensor implementation using application/json representation
+			return new JsonSensor();
 //		case XML:
 //			// return Sensor implementation using application/xml representation
 //			return new XmlSensor();

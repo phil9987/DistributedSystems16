@@ -13,7 +13,7 @@ public class HttpRawRequestImpl implements HttpRawRequest {
 
         stringBuilder.append("GET " + path + " HTTP/1.1\r\n");
         stringBuilder.append("Host: " + host + ":" + port + "\r\n");
-        stringBuilder.append("Accept: text/html\r\n");
+        stringBuilder.append("Accept: text/plain\r\n"); // This needs to be `text/html` for the test to succeed
         stringBuilder.append("Connection: close\r\n");
 
         stringBuilder.append("\r\n");

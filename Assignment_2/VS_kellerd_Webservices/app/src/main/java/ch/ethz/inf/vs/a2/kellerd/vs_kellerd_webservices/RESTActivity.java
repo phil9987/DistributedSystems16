@@ -4,11 +4,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import ch.ethz.inf.vs.a2.sensor.AbstractSensor;
+import ch.ethz.inf.vs.a2.sensor.RawHttpSensor;
+
 public class RESTActivity extends AppCompatActivity
         implements ch.ethz.inf.vs.a2.sensor.SensorListener {
 
     private TextView mTemperatureTextView;
     private TextView mDebugTextView;
+
+    private AbstractSensor sensor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +27,29 @@ public class RESTActivity extends AppCompatActivity
 
         mTemperatureTextView.setText("");
         mDebugTextView.setText("");
+
+        sensor = new RawHttpSensor();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        sensor.registerListener(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        sensor.getTemperature();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        sensor.unregisterListener(this);
     }
 
     /*

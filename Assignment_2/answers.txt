@@ -1,0 +1,59 @@
+Mini Test
+
+1. (HTTP Protocol Version 1.1)
+A)  A request line starts always begins with a method token, followed by the Request-URI and the protocol version. 
+    All the elements are separated by SP characters. TThere is no CR or LF allowed execpt in the final CRLF sequence.
+    example:     Request-Line   = Method SP Request-URI SP HTTP-Version CRLF
+
+B)  GET 192.168.1.1:8080 HTTP/1.1
+
+C)
+
+2. (Network I/O)
+A)  
+
+B) 
+
+
+3. (Representational State Transfer)
+A)
+
+B)
+
+C)
+
+D)
+
+4. (WS-* services)
+A)  The definitions are held in the WSDL file. The document can be retrieved by adding the postfix "?WSDL" to the URL of the Servic. 
+    In our case: http://vslab.inf.ethz.ch:8080/SunSPOTWebServices/SunSPOTWebservice?wsdl
+
+B)  The type definitions can be found in the schema at the location defined in the WSDL file. 
+    In our case: http://vslab.inf.ethz.ch:8080/SunSPOTWebServices/SunSPOTWebservice?xsd=1
+    
+    Defintion of getSpot:
+    <xs:complexType name="getSpot">
+    <xs:sequence>
+    <xs:element name="id" type="xs:string" minOccurs="0"/>
+    </xs:sequence></xs:complexType>
+    
+    Definition of getSpotResponse:
+    xs:complexType name="getSpotResponse">
+    <xs:sequence>
+    <xs:element name="return" type="tns:sunSpot" minOccurs="0"/>
+    </xs:sequence></xs:complexType>
+    
+    This means that getSpot takes a string as input and return an object of the type sunSpot.
+    The object sunSpot is also defined in the schema.
+
+C)  We would define it in the <soap:binding transport="..."/>  attribute. e.g. <soap:binding transport="http://schemas.pocketsoap.com/soap/smtp"
+    The soap:address in the service would be a e-mail address 
+
+5. (Android Emluator Networking)
+A)
+
+B)
+
+C)
+
+D)

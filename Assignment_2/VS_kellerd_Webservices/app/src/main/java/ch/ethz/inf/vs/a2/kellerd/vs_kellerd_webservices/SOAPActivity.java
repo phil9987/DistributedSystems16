@@ -29,8 +29,8 @@ public class SOAPActivity extends AppCompatActivity implements SensorListener {
         mTemperatureTextView.setText("");
         mDebugTextView.setText("");
 
-        sensor = new XmlSensor();
-      //  sensor = new SoapSensor();
+      //  sensor = new XmlSensor();
+        sensor = new SoapSensor();
 
 
 

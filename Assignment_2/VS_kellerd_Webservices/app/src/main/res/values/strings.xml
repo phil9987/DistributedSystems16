@@ -3,4 +3,5 @@
     <string name="rest_button">Open RESTful Activity</string>
     <string name="ws_button">Open WS-* Activity</string>
     <string name="server_button">Open Server Acitivty</string>
+    <string name="soap_activity_title">SOAP client</string>
 </resources>

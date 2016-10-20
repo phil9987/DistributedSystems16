@@ -12,15 +12,35 @@
     tools:context="ch.ethz.inf.vs.a2.kellerd.vs_kellerd_webservices.RESTActivity">
 
     <TextView
-        android:text="TextView"
+        android:text="@string/rest_loading_temperature"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAlignment="center"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:id="@+id/temperature"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"/>
+        />
+
+    <Button
+        android:text="@string/rest_raw_http_sensor_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onRawHttpSensorButtonClick" />
+
+    <Button
+        android:text="@string/rest_text_sensor_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onTextSensorButtonClick" />
+
+    <Button
+        android:text="@string/rest_json_sensor_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onJsonSensorButtonClick" />
 
     <TextView
         android:text="TextView"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAlignment="center"

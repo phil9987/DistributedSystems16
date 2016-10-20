@@ -9,6 +9,10 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import ch.ethz.inf.vs.a2.sensor.AbstractSensor;
 import ch.ethz.inf.vs.a2.sensor.SensorListener;
 import ch.ethz.inf.vs.a2.sensor.SoapSensor;
@@ -20,6 +24,7 @@ public class SOAPActivity extends AppCompatActivity implements SensorListener {
     private TextView mDebugTextView;
     private AbstractSensor xmlSensor;
     private AbstractSensor soapSensor;
+    private List<AbstractSensor> mSensors;
     private AbstractSensor sensor;
     private RadioGroup sensorGroup;
     private RadioButton xmlBtn, soapBtn;
@@ -41,6 +46,7 @@ public class SOAPActivity extends AppCompatActivity implements SensorListener {
 
         xmlSensor = new XmlSensor();
         soapSensor= new SoapSensor();
+        mSensors = new ArrayList<>(Arrays.asList(xmlSensor,soapSensor));
         sensor = xmlSensor;
 
         mTemperatureTextView = (TextView) findViewById(R.id.soapTemperature);
@@ -122,7 +128,9 @@ public class SOAPActivity extends AppCompatActivity implements SensorListener {
     @Override
     protected void onStart(){
         super.onStart();
-        sensor.registerListener(this);
+        for (AbstractSensor sensor:mSensors){
+            sensor.registerListener(this);
+        }
     }
 
     @Override
@@ -134,7 +142,9 @@ public class SOAPActivity extends AppCompatActivity implements SensorListener {
     @Override
     protected void onStop() {
         super.onStop();
-        sensor.unregisterListener(this);
+        for (AbstractSensor sensor:mSensors){
+            sensor.unregisterListener(this);
+        }
     }
 
 

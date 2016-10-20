@@ -20,15 +20,6 @@
         android:layout_marginTop="37dp"
         android:id="@+id/soapTemperature" />
 
-    <TextView
-        android:text="Debug"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/soapDebug"
-        android:layout_marginBottom="52dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignStart="@+id/soapTemperature" />
-
     <RadioGroup
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -41,13 +32,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/soapBtn"
-            android:onClick="onRadioButtonClicked"/>
+            android:onClick="onRadioButtonClicked"
+            android:textColorLink="?attr/colorPrimaryDark" />
         <RadioButton android:id="@+id/xmlBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/xmlBtn"
             android:onClick="onRadioButtonClicked"
-            android:checked="true" />
+            android:checked="true"
+            android:textColorLink="?attr/colorPrimaryDark" />
     </RadioGroup>
 
     <RadioGroup
@@ -62,22 +55,33 @@
         android:layout_height="wrap_content"
         android:text="@string/spot3Txt"
         android:onClick="onRadioButtonClicked"
-        android:checked="true" />
+        android:checked="true"
+        android:textColorLink="?attr/colorPrimaryDark" />
     <RadioButton android:id="@+id/spot4Btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/spot4Txt"
-        android:onClick="onRadioButtonClicked"/>
+        android:onClick="onRadioButtonClicked"
+        android:textColorLink="?attr/colorPrimaryDark" />
 </RadioGroup>
+
+    <TextView
+        android:text="Debug"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/soapDebug"
+        android:layout_alignParentBottom="true"
+        android:layout_alignStart="@+id/soapTemperature"
+        android:layout_marginBottom="24dp" />
 
     <Button
         android:text="@string/tempBtnTxt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="35dp"
         android:id="@+id/getTempBtn"
         android:layout_above="@+id/soapDebug"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="24dp" />
 
 
 </RelativeLayout>

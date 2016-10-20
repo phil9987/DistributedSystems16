@@ -1,8 +1,5 @@
 package ch.ethz.inf.vs.a2.sensor;
 
-import android.content.Context;
-import android.util.Log;
-
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.serialization.PropertyInfo;
 import org.ksoap2.serialization.SoapObject;
@@ -11,10 +8,9 @@ import org.ksoap2.transport.HttpTransportSE;
 
 import ch.ethz.inf.vs.a2.kellerd.vs_kellerd_webservices.SOAPActivity;
 
-// http://mashtips.com/call-soap-with-request-xml-and-get-response-xml-back/
-
 /**
  * Created by simon on 17.10.16.
+ * inspired by  http://mashtips.com/call-soap-with-request-xml-and-get-response-xml-back/
  */
 
 public class SoapSensor extends AbstractSensor implements Sensor {
@@ -24,7 +20,7 @@ public class SoapSensor extends AbstractSensor implements Sensor {
     private final static String xmlTag = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
     private final static String url="http://vslab.inf.ethz.ch:8080/SunSPOTWebServices/SunSPOTWebservice";
     private final static String SoapAction = "";
-    SoapObject request;
+    private SoapObject request;
 
 
     @Override
@@ -39,6 +35,7 @@ public class SoapSensor extends AbstractSensor implements Sensor {
 
         request = new SoapObject(namespace, method);
 
+        //set properties of the soap request
         PropertyInfo property =new PropertyInfo();
         property.setName("id");
         if (spotChoice){
@@ -48,20 +45,24 @@ public class SoapSensor extends AbstractSensor implements Sensor {
             property.setValue("spot4");
         }
 
+        //add propoerties to the request
         request.addProperty(property);
+        //create envelope
         final SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
         envelope.setOutputSoapObject(request);
+
+        //get connection to url
         final HttpTransportSE transportSE = new HttpTransportSE(url);
         transportSE.setXmlVersionTag(xmlTag);
         transportSE.debug = true;
 
+        //send request to the network
         transportSE.call(SoapAction,envelope);
-        Log.d(ACTIVITY_TAG, transportSE.requestDump);
+
         SoapObject response = (SoapObject) envelope.getResponse();
-        Log.d(ACTIVITY_TAG, transportSE.responseDump);
 
+        //read temperature from response
         temperature = response.getPropertySafelyAsString("temperature");
-
 
         return temperature;
     }

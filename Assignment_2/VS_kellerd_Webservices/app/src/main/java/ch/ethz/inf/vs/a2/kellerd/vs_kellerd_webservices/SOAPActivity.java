@@ -1,6 +1,5 @@
 package ch.ethz.inf.vs.a2.kellerd.vs_kellerd_webservices;
 
-import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -10,7 +9,6 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import ch.ethz.inf.vs.a2.kellerd.vs_kellerd_webservices.R;
 import ch.ethz.inf.vs.a2.sensor.AbstractSensor;
 import ch.ethz.inf.vs.a2.sensor.SensorListener;
 import ch.ethz.inf.vs.a2.sensor.SoapSensor;
@@ -25,7 +23,6 @@ public class SOAPActivity extends AppCompatActivity implements SensorListener {
     private AbstractSensor sensor;
     private RadioGroup sensorGroup;
     private RadioButton xmlBtn, soapBtn;
-    private boolean sensorChoice;
 
     private RadioGroup spotGroup;
     private RadioButton spot3Btn, spot4Btn;
@@ -40,7 +37,6 @@ public class SOAPActivity extends AppCompatActivity implements SensorListener {
 
         setTitle(R.string.soap_activity_title);
 
-        sensorChoice = false;
         spotChoice = false;
 
         xmlSensor = new XmlSensor();
@@ -127,7 +123,6 @@ public class SOAPActivity extends AppCompatActivity implements SensorListener {
     protected void onStart(){
         super.onStart();
         sensor.registerListener(this);
-
     }
 
     @Override

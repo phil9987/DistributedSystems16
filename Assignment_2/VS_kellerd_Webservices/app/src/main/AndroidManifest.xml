@@ -17,8 +17,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".RESTActivity"></activity>
-        <activity android:name=".SOAPActivity"></activity>
+        <activity android:name=".RESTActivity" />
+        <activity android:name=".SOAPActivity" />
+        <activity android:name=".ServerActivity"></activity>
     </application>
 
 </manifest>

@@ -1,5 +1,6 @@
 package ch.ethz.inf.vs.a2.sensor;
 
+import android.content.Context;
 import android.util.Log;
 
 import org.ksoap2.SoapEnvelope;
@@ -7,6 +8,8 @@ import org.ksoap2.serialization.PropertyInfo;
 import org.ksoap2.serialization.SoapObject;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
+
+import ch.ethz.inf.vs.a2.kellerd.vs_kellerd_webservices.SOAPActivity;
 
 // http://mashtips.com/call-soap-with-request-xml-and-get-response-xml-back/
 
@@ -31,12 +34,20 @@ public class SoapSensor extends AbstractSensor implements Sensor {
 
     @Override
     public String executeRequest() throws Exception {
-        String temperature = null;
+        boolean spotChoice = SOAPActivity.spotChoice;
+        String temperature;
+
         request = new SoapObject(namespace, method);
 
         PropertyInfo property =new PropertyInfo();
         property.setName("id");
-        property.setValue("spot4");
+        if (spotChoice){
+            property.setValue("spot3");
+        }
+        else {
+            property.setValue("spot4");
+        }
+
         request.addProperty(property);
         final SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
         envelope.setOutputSoapObject(request);

@@ -19,6 +19,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.text.AttributedCharacterIterator;
 
+import ch.ethz.inf.vs.a2.kellerd.vs_kellerd_webservices.SOAPActivity;
+
 /**
  * Created by simon on 17.10.16.
  */
@@ -30,6 +32,7 @@ public class XmlSensor extends AbstractSensor {
     private HttpURLConnection connection;
     private String soapAction;
     private String reqXML;
+    private String spot;
     final String ACTIVITY_TAG = "XmlSensor: ";
 
 
@@ -70,12 +73,19 @@ public class XmlSensor extends AbstractSensor {
     @Override
     public String executeRequest() throws Exception{
         connection = null;
+        boolean spotChoice = SOAPActivity.spotChoice;
+        if (spotChoice){
+            spot = "spot3";
+        }
+        else{
+            spot = "spot4";
+        }
         soapAction = ""; //http://vslab.inf.ethz.ch:8080/SunSPOTWebServices/SunSPOTWebservice/getSpot";
         reqXML ="<?xml version=\"1.0\" encoding=\"UTF-8\"?><S:Envelope xmlns:S=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
                 "    <S:Header/>" +
                 "    <S:Body>" +
                 "        <ns2:getSpot xmlns:ns2=\"http://webservices.vslecture.vs.inf.ethz.ch/\">" +
-                "            <id>Spot3</id>" +
+                "            <id>" +spot + "</id>" +
                 "        </ns2:getSpot>" +
                 "    </S:Body>" +
                 "</S:Envelope>";

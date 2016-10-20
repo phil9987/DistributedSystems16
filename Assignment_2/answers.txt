@@ -1,34 +1,50 @@
 Mini Test
 
 1. (HTTP Protocol Version 1.1)
-A)  A request line starts always begins with a method token, followed by the Request-URI and the protocol version. 
+A)  A request line starts always begins with a method token, followed by the 
+    Request-URI and the protocol version. 
     All the elements are separated by SP characters. TThere is no CR or LF allowed execpt in the final CRLF sequence.
     example:     Request-Line   = Method SP Request-URI SP HTTP-Version CRLF
 
-B)  GET 192.168.1.1:8080 HTTP/1.1
+B)  GET / HTTP/1.1
+    Host: 192.168.1.1:8080
 
-C)
+C)  1. Content negothiation using the `Accept` header field.
+    2. Caching using the `Cache-Control` header field.
 
 2. (Network I/O)
-A)  
+A)  `Socket` and `ServerSocket`. 
+    `Socked` is used in the client to open a connection to a server. We then 
+    can use the `OutputStream` and `InputStream` to send and receive data over 
+    the TCP connection respectively.
+    TODO: `ServerSocket`
 
-B) 
+B)  When we use `InputStream` and the input didn't arrive a call to `read()` 
+    is blocking. This means the program doesn't continue to exectue until 
+    `InputStream` receives data that is then returned after the `read()` call. 
+    The `InputStream` receives new data when `write()` is called on the other 
+    end in `OutputStream`. `write()` doesn't block and returns immediatly (as 
+    all methods of `OutputStream` do).
 
 
 3. (Representational State Transfer)
-A)
+A)  Correct.
 
-B)
+B)  Incorrect. Stateless means the server doesn't store any client-context and 
+    the client has to provied the context on any request to the server.
 
-C)
+C)  Correct.
 
-D)
+D)  Incorrect. REST doesn't define a data representation. This is negothiated 
+    between client and server on every request.
 
 4. (WS-* services)
-A)  The definitions are held in the WSDL file. The document can be retrieved by adding the postfix "?WSDL" to the URL of the Servic. 
+A)  The definitions are held in the WSDL file. The document can be retrieved 
+    by adding the postfix "?WSDL" to the URL of the Servic. 
     In our case: http://vslab.inf.ethz.ch:8080/SunSPOTWebServices/SunSPOTWebservice?wsdl
 
-B)  The type definitions can be found in the schema at the location defined in the WSDL file. 
+B)  The type definitions can be found in the schema at the location defined in 
+    the WSDL file. 
     In our case: http://vslab.inf.ethz.ch:8080/SunSPOTWebServices/SunSPOTWebservice?xsd=1
     
     Defintion of getSpot:

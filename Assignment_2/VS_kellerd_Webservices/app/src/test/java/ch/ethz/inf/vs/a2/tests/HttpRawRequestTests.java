@@ -7,10 +7,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ch.ethz.inf.vs.a2.http.HttpRawRequest;
-import ch.ethz.inf.vs.a2.solution.http.HttpRawRequestImpl;
+import ch.ethz.inf.vs.a2.http.HttpRawRequestImpl;
 
 
-public class HttpRawRequestTests{
+public class HttpRawRequestTests {
 
 	private final int TEST_PORT = 1234;
 	private final String TEST_HOST = "somehost.tld";
@@ -143,7 +143,7 @@ public class HttpRawRequestTests{
 			if (matcher.group(1).equals("Accept")) {
 				found = true;
 				String accept = matcher.group(2);
-				Assert.assertTrue("\"" + accept + "\" does not match expected value \"text/html\".", accept.equals("text/html"));
+				Assert.assertTrue("\"" + accept + "\" does not match expected value \"text/plain\".", accept.equals("text/plain"));
 				break;
 			}
 		}

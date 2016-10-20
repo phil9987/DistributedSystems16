@@ -3,6 +3,11 @@
     <string name="rest_button">Open RESTful Activity</string>
     <string name="ws_button">Open WS-* Activity</string>
     <string name="server_button">Open Server Acitivty</string>
+    <string name="rest_activity_title">RESTful Activity</string>
+    <string name="rest_loading_temperature">Fetching temperature...</string>
+    <string name="rest_raw_http_sensor_button">Fetch via RawHttpSensor</string>
+    <string name="rest_text_sensor_button">Fetch via TextSensor</string>
+    <string name="rest_json_sensor_button">Fetch via JsonSensor</string>
     <string name="soap_activity_title">SOAP client</string>
     <string name="xmlBtn">Xml sensor</string>
     <string name="soapBtn">SOAP sensor</string>

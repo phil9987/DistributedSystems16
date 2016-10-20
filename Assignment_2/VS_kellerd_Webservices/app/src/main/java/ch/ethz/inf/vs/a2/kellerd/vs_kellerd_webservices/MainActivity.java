@@ -14,7 +14,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onRESTButtonClick(View view) {
-        // TODO: Open REST Activity
+        Intent restIntent = new Intent(this, RESTActivity.class);
+        this.startActivity(restIntent);
     }
 
     public void onWSButtonClick(View view) {

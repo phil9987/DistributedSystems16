@@ -4,4 +4,10 @@
     <string name="ws_button">Open WS-* Activity</string>
     <string name="server_button">Open Server Acitivty</string>
     <string name="rest_activity_title">RESTful Activity</string>
+    <string name="soap_activity_title">SOAP client</string>
+    <string name="xmlBtn">Xml sensor</string>
+    <string name="soapBtn">SOAP sensor</string>
+    <string name="tempBtnTxt">get temperature</string>
+    <string name="spot3Txt">Spot 3</string>
+    <string name="spot4Txt">Spot 4</string>
 </resources>

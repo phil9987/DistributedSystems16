@@ -19,7 +19,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onWSButtonClick(View view) {
-        // TODO: Open WS* Activity
+        Intent restIntent = new Intent(this, SOAPActivity.class);
+        this.startActivity(restIntent);
     }
 
     public void onServerButtonClick(View view) {

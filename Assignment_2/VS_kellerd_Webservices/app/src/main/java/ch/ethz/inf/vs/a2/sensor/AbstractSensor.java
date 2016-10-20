@@ -1,6 +1,5 @@
 package ch.ethz.inf.vs.a2.sensor;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 

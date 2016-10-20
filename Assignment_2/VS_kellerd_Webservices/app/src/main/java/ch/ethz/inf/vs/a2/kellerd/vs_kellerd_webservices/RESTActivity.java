@@ -1,7 +1,5 @@
 package ch.ethz.inf.vs.a2.kellerd.vs_kellerd_webservices;
 
-import android.os.Build;
-import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -10,7 +8,6 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import ch.ethz.inf.vs.a2.sensor.AbstractSensor;
 import ch.ethz.inf.vs.a2.sensor.JsonSensor;
@@ -23,10 +20,10 @@ public class RESTActivity extends AppCompatActivity
     private TextView mTemperatureTextView;
     private TextView mDebugTextView;
 
-    private RawHttpSensor rawHttpSensor;
-    private TextSensor textSensor;
-    private JsonSensor jsonSensor;
-    private List<AbstractSensor> sensors;
+    private RawHttpSensor mRawHttpSensor;
+    private TextSensor mTextSensor;
+    private JsonSensor mJsonSensor;
+    private List<AbstractSensor> mSensors;
 
     private String mSource;
 
@@ -42,17 +39,19 @@ public class RESTActivity extends AppCompatActivity
 
         mDebugTextView.setText("");
 
-        rawHttpSensor = new RawHttpSensor();
-        textSensor = new TextSensor();
-        jsonSensor = new JsonSensor();
-        sensors = new ArrayList<>(Arrays.asList(rawHttpSensor, textSensor, jsonSensor));
+        mSource = "";
+
+        mRawHttpSensor = new RawHttpSensor();
+        mTextSensor = new TextSensor();
+        mJsonSensor = new JsonSensor();
+        mSensors = new ArrayList<>(Arrays.asList(mRawHttpSensor, mTextSensor, mJsonSensor));
     }
 
     @Override
     protected void onStart() {
         super.onStart();
 
-        for (AbstractSensor sensor: sensors) {
+        for (AbstractSensor sensor: mSensors) {
             sensor.registerListener(this);
         }
     }
@@ -62,14 +61,14 @@ public class RESTActivity extends AppCompatActivity
         super.onResume();
 
         mSource = "Raw";
-        rawHttpSensor.getTemperature();
+        mRawHttpSensor.getTemperature();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
 
-        for (AbstractSensor sensor: sensors) {
+        for (AbstractSensor sensor: mSensors) {
             sensor.unregisterListener(this);
         }
     }
@@ -81,19 +80,19 @@ public class RESTActivity extends AppCompatActivity
     public void onRawHttpSensorButtonClick(View view) {
         mTemperatureTextView.setText(R.string.rest_loading_temperature);
         mSource = "Raw";
-        rawHttpSensor.getTemperature();
+        mRawHttpSensor.getTemperature();
     }
 
     public void onTextSensorButtonClick(View view) {
         mTemperatureTextView.setText(R.string.rest_loading_temperature);
         mSource = "Text";
-        textSensor.getTemperature();
+        mTextSensor.getTemperature();
     }
 
     public void onJsonSensorButtonClick(View view) {
         mTemperatureTextView.setText(R.string.rest_loading_temperature);
         mSource = "Json";
-        jsonSensor.getTemperature();
+        mJsonSensor.getTemperature();
     }
 
     /*

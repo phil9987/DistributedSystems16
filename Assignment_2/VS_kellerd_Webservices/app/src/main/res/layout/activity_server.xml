@@ -21,7 +21,8 @@
             android:layout_width="200dp"
             android:layout_height="50dp"
             android:layout_below="@id/textViewIP"
-            android:layout_centerInParent="true"/>
+            android:layout_centerInParent="true"
+            android:onClick="onStartStopClick"/>
     </RelativeLayout>
 
 </RelativeLayout>

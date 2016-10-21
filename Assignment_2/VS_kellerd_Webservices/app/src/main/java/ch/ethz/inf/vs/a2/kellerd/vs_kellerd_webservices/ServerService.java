@@ -1,4 +1,4 @@
-package ch.ethz.inf.vs.a2.server;
+package ch.ethz.inf.vs.a2.kellerd.vs_kellerd_webservices;
 
 import android.app.Service;
 import android.content.Context;
@@ -13,11 +13,28 @@ import android.os.Vibrator;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.ServerSocket;
+import java.net.Socket;
+
 /**
  * Created by philipjunker on 19.10.16.
  */
 
 public class ServerService extends Service implements SensorEventListener{
+    private ServerSocket serverSocket;
+    Handler updateConversationHandler;
+    Thread serverThread = null;
+    public static final int SERVERPORT = 8034;
+
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
 
     private String acutator1 = "flashlight"; // actuator to turn on flashlight for 5 seconds
     private String actuator2 = "vibrate" ; // vibrate for 5 seconds
@@ -137,10 +154,16 @@ public class ServerService extends Service implements SensorEventListener{
         return " <a href=\"" + url + "\">"+text + "</a> ";
     }
 
+    /*@Override
+    public void onCreate() {
+        super.onCreate();
+        Log.d("DEBUG", "onCreate Called!");
+    }*/
+
     //Service functionality
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
+        Log.d("DEBUG", "onStartCommand Called!");
         sensorMgr = (SensorManager) getSystemService(SENSOR_SERVICE);
         lightSensor = sensorMgr.getDefaultSensor(Sensor.TYPE_LIGHT);
         sensorMgr.registerListener(this,lightSensor,SensorManager.SENSOR_DELAY_NORMAL);
@@ -149,7 +172,10 @@ public class ServerService extends Service implements SensorEventListener{
 
 
 // TODO get incoming initialize socket... / get incoming HTTP requests / build&send response (pageBuilder, responseBuilder
-
+        Log.d("DEBUG", "ServerService starting...");
+        updateConversationHandler = new Handler();
+        this.serverThread = new Thread(new ServerThread());
+        this.serverThread.start();
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -190,12 +216,6 @@ public class ServerService extends Service implements SensorEventListener{
     }
 
 
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        throw new UnsupportedOperationException("Unsupported Operation!");
-    }
-
 
 
     //SensorListener functionality
@@ -213,4 +233,85 @@ public class ServerService extends Service implements SensorEventListener{
             ligthVal = event.values[0];
         }
     }
+
+    class ServerThread implements Runnable{
+        @Override
+        public void run() {
+            Socket socket = null;
+            try{
+                Log.d("DEBUG: ", "starting server on port " + Integer.toString(SERVERPORT));
+                serverSocket = new ServerSocket(SERVERPORT);
+            }   catch (IOException e){
+                e.printStackTrace();
+            }
+            while (!Thread.currentThread().isInterrupted()){
+                try {
+                    socket = serverSocket.accept();
+                    Log.d("DEBUG: ", "incoming connection! starting communication thread!");
+                    CommunicationThread commThread = new CommunicationThread(socket);
+                    new Thread(commThread).start();
+                }   catch (IOException e){
+                    e.printStackTrace();
+                }
+
+            }
+        }
+    }
+
+    class CommunicationThread implements Runnable{
+        private Socket clientSocket;
+        private BufferedReader input;
+        public CommunicationThread(Socket clientSocket){
+            this.clientSocket = clientSocket;
+            try{
+                this.input = new BufferedReader(new InputStreamReader(this.clientSocket.getInputStream()));
+                Log.d("DEBUG: ", "starting communication thread...");
+            }   catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+        @Override
+        public void run() {
+            while (!Thread.currentThread().isInterrupted()){
+                try{
+                    String read = input.readLine();
+                    Log.d("RECEIVED MSG: ", " " + read);
+
+                }   catch(IOException e){
+                    e.printStackTrace();
+                }
+            }
+
+        }
+    }
+
+    /*protected class ConnectionThread implements Runnable {
+        protected Socket socket;
+        protected SimpleHttpRequestHandler handler;
+
+        public ConnectionThread(Socket socket, SimpleHttpRequestHandler handler) {
+            this.socket = socket;
+            this.handler = handler;
+        }
+
+
+        @Override
+        public void run() {
+            Log.d(SERVER_TAG, "client here: wait for request");
+
+            HttpRawRequest req = new HttpRawRequestImpl();
+            try {
+                req.parseRequest(socket.getInputStream());
+                Log.d(SERVER_TAG, "request parsed");
+
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                writer.write(handler.handle(req).generateResponse());
+                writer.flush();
+                Log.d(SERVER_TAG, "response sent");
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }*/
 }

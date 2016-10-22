@@ -16,11 +16,13 @@ import java.net.Socket;
 public class RawHttpServer implements Runnable{
     ServerSocket serverSocket;
     Thread serverThread;
+    HttpRequestHandler handler;
     int port;
     public static final String SERVER_TAG = "### RawHttpServer ###";
 
-    public void start(int port) {
+    public void start(int port, HttpRequestHandler handler) {
         this.stop();
+        this.handler = handler;
         this.port = port;
 
         try {
@@ -57,8 +59,8 @@ public class RawHttpServer implements Runnable{
         while (!Thread.currentThread().isInterrupted()){
             try {
                 socket = serverSocket.accept();
-                Log.d("DEBUG: ", "incoming connection! starting communication thread!");
-                CommunicationThread commThread = new CommunicationThread(socket);
+                Log.d(SERVER_TAG, "incoming connection! starting communication thread!");
+                CommunicationThread commThread = new CommunicationThread(socket, handler);
                 new Thread(commThread).start();
             }   catch (IOException e){
                 //e.printStackTrace();
@@ -70,18 +72,17 @@ public class RawHttpServer implements Runnable{
     }
 
     protected class CommunicationThread implements Runnable{
-        private volatile boolean running = true;
-        private Socket clientSocket;
         private BufferedReader input;
         private PrintWriter output;
+        protected HttpRequestHandler handler;
 
 
-        public CommunicationThread(Socket clientSocket){
-            this.clientSocket = clientSocket;
+        public CommunicationThread(Socket clientSocket, HttpRequestHandler handler){
             try{
-                this.input = new BufferedReader(new InputStreamReader(this.clientSocket.getInputStream()));
+                this.handler = handler;
+                this.input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 this.output = new PrintWriter(clientSocket.getOutputStream(),true);     // printwriter with auto-flush
-                Log.d("DEBUG: ", "starting communication thread...");
+                Log.d(SERVER_TAG, "starting communication thread...");
             }   catch (IOException e){
                 e.printStackTrace();
             }
@@ -92,16 +93,16 @@ public class RawHttpServer implements Runnable{
                 String request = input.readLine(); //GET path HTTP/1.1
                 String[] requestParam = request.split(" ");
                 String path = requestParam[1];
-                Log.d("DEBUG request_param", path);
-                output.write("HTTP 404");
-
+                Log.d(SERVER_TAG, path);
+                output.write(handler.handle(path, request));
+                output.flush();
                 input.close();
                 output.close();
 
             }   catch(IOException e){
                 e.printStackTrace();
             }
-            Log.d("DEBUG", "stopping communication thread.");
+            Log.d(SERVER_TAG, "stopping communication thread.");
 
         }
     }

@@ -13,25 +13,24 @@ import android.os.Vibrator;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
 
+import ch.ethz.inf.vs.a2.http.HttpRequestHandler;
 import ch.ethz.inf.vs.a2.http.RawHttpServer;
 
 /**
  * Created by philipjunker on 19.10.16.
  */
 
-public class ServerService extends Service implements SensorEventListener{
+public class ServerService extends Service implements SensorEventListener, HttpRequestHandler{
 
     public static final String SERVICE_TAG = "### ServerService ###";
     public static final int SERVERPORT = 8034;
     protected static RawHttpServer server = null;
-
+    private String ipAddress;
 
     @Nullable
     @Override
@@ -39,11 +38,11 @@ public class ServerService extends Service implements SensorEventListener{
         return null;
     }
 
-    private String acutator1 = "flashlight"; // actuator to turn on flashlight for 5 seconds
-    private String actuator2 = "vibrate" ; // vibrate for 5 seconds
-    private String sensor1 = "ambientlight";
-    private String sensor2 = "barometer";
-    private String root = "Root page";
+    private static final String acutator1 = "flashlight"; // actuator to turn on flashlight for 5 seconds
+    private static final String actuator2 = "vibrate" ; // vibrate for 5 seconds
+    private static final String sensor1 = "ambientlight";
+    private static final String sensor2 = "barometer";
+    private static final String root = "";
 
     private String a1url = "/" + acutator1 + "/";
     private String a2url = "/" + actuator2 + "/";
@@ -53,17 +52,19 @@ public class ServerService extends Service implements SensorEventListener{
     private String header = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd>" +
             "<html xmlns=\"http://www.w3.org/1999/xhtml\"> \n" +
             "\t<head>\n" +
+            "<base href=\"" + ipAddress + "\" />\n" +
             "\t\t<title>";
     private String beginBody = "</title></head><body>\n";
     private String endBody = "</body></html>\r\n\r\n";
-    private String rootLink = "";
 
-    private String http200Hdr = "HTTP/1.1 200 OK\n" +
-            "Content-Type: text/html; charset=UTF-8" +
+    private String http200Hdr = "HTTP/1.1 200 OK\r\n" +
+            "Content-Type: text/html; charset=UTF-8\r\n" +
+            "Connection: close" +
             "\r\n\r\n";
 
     private String http404Hdr = "HTTP/1.1 404 OK\n" +
             "Content-Type: text/html; charset=UTF-8" +
+            "Connection: close" +
             "\r\n\r\n";
 
     private SensorManager sensorMgr;
@@ -75,56 +76,61 @@ public class ServerService extends Service implements SensorEventListener{
 
     private android.hardware.Camera cam;
     private android.hardware.Camera.Parameters camParams;
-
+    private String getHeader(String ip){
+        return "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd>" +
+                "<html xmlns=\"http://www.w3.org/1999/xhtml\"> \n" +
+                "\t<head>\n" +
+                "<base href=\"" + "http://" + ip + "\" />\n" +
+                "\t\t<title>";
+    }
     // builder to generate http response, id=requested sensor/actuator
     private String pageBuilder (String id){
         String title = null;
         String body = null;
         if (id.equals(acutator1)){
             title = "Flashlight actuator page";
-            body = paragraph(bold(title)) +
+            body = paragraph(bold(title)) + "\r\n\r\n" +
                     paragraph("Flashlight is now activated for 5s. It gets deactivated automatically");
         }
         else if (id.equals(actuator2)){
             title = "Vibration actuator page";
-            body = paragraph(bold(title)) +
+            body = paragraph(bold(title)) + "\r\n\r\n" +
                     paragraph("Vibration activated. The phone vibrates for 5s");
         }
         else if (id.equals(sensor1)){
             title = "Ambientlight sensor page";
-            body = paragraph(bold(title)) +
+            body = paragraph(bold(title)) + "\r\n\r\n" +
                     paragraph("Ambient light measured by the phone: " + ligthVal + "lx");
         }
         else if (id.equals(sensor2)){
             title = "Barometer sensor page";
-            body = paragraph(bold(title)) +
+            body = paragraph(bold(title)) + "\r\n\r\n" +
                     paragraph("Ambient air pressure measured by the phone: " + barometerVal + "hPa");
         }
         else if (id.equals(root)){
             title = "REST webserver root page";
-            body = paragraph(bold(title))+
-                    paragraph("Welcome to our REST server powered by Android")
-                    + paragraph(getLink(a1url, "Actuator 1: Vibration"))
-                    + paragraph(getLink(a2url, "Actuator 2: Flashlight"))
-                    + paragraph(getLink(s1url, "Sensor 1: Ambient light"))
+            body = paragraph(bold(title))+ "\r\n\r\n" +
+                    paragraph("Welcome to our REST server powered by Android") + "\r\n"
+                    + paragraph(getLink(a1url, "Actuator 1: Flashlight")) + "\r\n"
+                    + paragraph(getLink(a2url, "Actuator 2: Vibration")) + "\r\n"
+                    + paragraph(getLink(s1url, "Sensor 1: Ambient light")) + "\r\n"
                     + paragraph(getLink(s2url, "Sensor 2: Barometer"));
         }
         else {
             title = "404: You (or we) screwed up the internet!";
-            body = paragraph(bold(title)) +
-                    paragraph("Seems like you're trying to access a page that doesn't exist...") +
-                    paragraph(getLink("/", "Go back to rootpage"));
+            body = paragraph(bold(title)) + "\r\n" +
+                    paragraph("Seems like you're trying to access a page that doesn't exist...");
 
         }
 
         StringBuilder builder = new StringBuilder("");
-        builder.append(header);
+        builder.append(getHeader(ipAddress));
         builder.append(title);
         builder.append(beginBody);
         // add specific page
         builder.append(body);
         // link to root page
-        builder.append(getLink("/", "Go back to rootpage"));
+        builder.append("\r\n" + paragraph( getLink("./", "Go back to rootpage")));
         builder.append(endBody);
 
         return builder.toString();
@@ -161,18 +167,22 @@ public class ServerService extends Service implements SensorEventListener{
     //Service functionality
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d("DEBUG", "onStartCommand Called!");
+        Log.d(SERVICE_TAG, "onStartCommand Called!");
+        ipAddress = intent.getStringExtra("ip");
+        Log.d(SERVICE_TAG, ipAddress);
         sensorMgr = (SensorManager) getSystemService(SENSOR_SERVICE);
         lightSensor = sensorMgr.getDefaultSensor(Sensor.TYPE_LIGHT);
+        Log.d(SERVICE_TAG, lightSensor.getName());
         sensorMgr.registerListener(this,lightSensor,SensorManager.SENSOR_DELAY_NORMAL);
         barometer = sensorMgr.getDefaultSensor(Sensor.TYPE_PRESSURE);
+        Log.d(SERVICE_TAG, barometer.getName());
         sensorMgr.registerListener(this,barometer,SensorManager.SENSOR_DELAY_NORMAL);
 
 
-// TODO get incoming initialize socket... / get incoming HTTP requests / build&send response (pageBuilder, responseBuilder
-        Log.d("DEBUG", "ServerService starting...");
+        Log.d(SERVICE_TAG, "ServerService starting...");
         this.server = new RawHttpServer();
-        server.start(SERVERPORT);
+        server.start(SERVERPORT, this);
+        // TODO build&send response (pageBuilder, responseBuilder)
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -231,4 +241,33 @@ public class ServerService extends Service implements SensorEventListener{
             ligthVal = event.values[0];
         }
     }
+
+    @Override
+    public String handle(String path, String request) {
+        if (path.startsWith("/")) path = path.substring(1);
+        if (path.endsWith("/")) path = path.substring(0,path.length()-1);
+        String page = pageBuilder(path);
+        //Log.d(SERVICE_TAG, page);
+        switch(path){
+            case acutator1:     //flashlight
+                flashlightAction();
+                break;
+            case actuator2:     //vibration
+                vibrationAction();
+                break;
+            case sensor1:       //ambient light
+
+                break;
+            case sensor2:       //barometer
+
+                break;
+            default:
+                break;
+
+        }
+        String response = responseBuilder(page);
+        Log.d(SERVICE_TAG, response);
+        return response;
+    }
+
 }

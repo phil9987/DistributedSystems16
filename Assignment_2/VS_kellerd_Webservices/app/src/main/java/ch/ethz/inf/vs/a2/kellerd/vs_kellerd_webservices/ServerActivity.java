@@ -34,6 +34,7 @@ public class ServerActivity extends AppCompatActivity {
         String ip = getLocalIpAddress();
         textViewIP.setText(ip + ":8034");
         Log.d(ACTIVITY_TAG, "IP = " + ip);
+        serverService.putExtra("ip", ip + ":8034");
 
     }
 
@@ -56,14 +57,13 @@ public class ServerActivity extends AppCompatActivity {
             for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
                 NetworkInterface intf = en.nextElement();
                 String name = intf.getName();
-                if(name == "wlan0" || name.equals(""))
-                    Log.d(ACTIVITY_TAG, "wlan0 found!!!!!!!!");
-                for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
-                    InetAddress inetAddress = enumIpAddr.nextElement();
-                    address = new String(inetAddress.getHostAddress().toString());
-                    if (!inetAddress.isLoopbackAddress() && address.length() < 18) {
-                        return inetAddress.getHostAddress().toString();
-                    }
+                if(name.equals("wlan0") || name.equals("eth0"))
+                    for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+                        InetAddress inetAddress = enumIpAddr.nextElement();
+                        address = new String(inetAddress.getHostAddress().toString());
+                        if (!inetAddress.isLoopbackAddress() && address.length() < 18) {
+                            return inetAddress.getHostAddress().toString();
+                        }
                 }
             }
         } catch (SocketException ex) {

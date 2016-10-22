@@ -16,18 +16,21 @@ import android.util.Log;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+
+import ch.ethz.inf.vs.a2.http.RawHttpServer;
 
 /**
  * Created by philipjunker on 19.10.16.
  */
 
 public class ServerService extends Service implements SensorEventListener{
-    private ServerSocket serverSocket;
-    Handler updateConversationHandler;
-    Thread serverThread = null;
+
+    public static final String SERVICE_TAG = "### ServerService ###";
     public static final int SERVERPORT = 8034;
+    protected static RawHttpServer server = null;
 
 
     @Nullable
@@ -154,11 +157,6 @@ public class ServerService extends Service implements SensorEventListener{
         return " <a href=\"" + url + "\">"+text + "</a> ";
     }
 
-    /*@Override
-    public void onCreate() {
-        super.onCreate();
-        Log.d("DEBUG", "onCreate Called!");
-    }*/
 
     //Service functionality
     @Override
@@ -173,15 +171,15 @@ public class ServerService extends Service implements SensorEventListener{
 
 // TODO get incoming initialize socket... / get incoming HTTP requests / build&send response (pageBuilder, responseBuilder
         Log.d("DEBUG", "ServerService starting...");
-        updateConversationHandler = new Handler();
-        this.serverThread = new Thread(new ServerThread());
-        this.serverThread.start();
+        this.server = new RawHttpServer();
+        server.start(SERVERPORT);
         return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
     public void onDestroy() {
         sensorMgr.unregisterListener(this);
+        server.stop();
         super.onDestroy();
     }
 
@@ -233,85 +231,4 @@ public class ServerService extends Service implements SensorEventListener{
             ligthVal = event.values[0];
         }
     }
-
-    class ServerThread implements Runnable{
-        @Override
-        public void run() {
-            Socket socket = null;
-            try{
-                Log.d("DEBUG: ", "starting server on port " + Integer.toString(SERVERPORT));
-                serverSocket = new ServerSocket(SERVERPORT);
-            }   catch (IOException e){
-                e.printStackTrace();
-            }
-            while (!Thread.currentThread().isInterrupted()){
-                try {
-                    socket = serverSocket.accept();
-                    Log.d("DEBUG: ", "incoming connection! starting communication thread!");
-                    CommunicationThread commThread = new CommunicationThread(socket);
-                    new Thread(commThread).start();
-                }   catch (IOException e){
-                    e.printStackTrace();
-                }
-
-            }
-        }
-    }
-
-    class CommunicationThread implements Runnable{
-        private Socket clientSocket;
-        private BufferedReader input;
-        public CommunicationThread(Socket clientSocket){
-            this.clientSocket = clientSocket;
-            try{
-                this.input = new BufferedReader(new InputStreamReader(this.clientSocket.getInputStream()));
-                Log.d("DEBUG: ", "starting communication thread...");
-            }   catch (IOException e){
-                e.printStackTrace();
-            }
-        }
-        @Override
-        public void run() {
-            while (!Thread.currentThread().isInterrupted()){
-                try{
-                    String read = input.readLine();
-                    Log.d("RECEIVED MSG: ", " " + read);
-
-                }   catch(IOException e){
-                    e.printStackTrace();
-                }
-            }
-
-        }
-    }
-
-    /*protected class ConnectionThread implements Runnable {
-        protected Socket socket;
-        protected SimpleHttpRequestHandler handler;
-
-        public ConnectionThread(Socket socket, SimpleHttpRequestHandler handler) {
-            this.socket = socket;
-            this.handler = handler;
-        }
-
-
-        @Override
-        public void run() {
-            Log.d(SERVER_TAG, "client here: wait for request");
-
-            HttpRawRequest req = new HttpRawRequestImpl();
-            try {
-                req.parseRequest(socket.getInputStream());
-                Log.d(SERVER_TAG, "request parsed");
-
-                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-                writer.write(handler.handle(req).generateResponse());
-                writer.flush();
-                Log.d(SERVER_TAG, "response sent");
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }*/
 }

@@ -17,11 +17,14 @@
             android:layout_height="50dp"
             android:layout_centerVertical="true"
             android:textAlignment="center"/>
-        <Button android:id="@+id/buttonStartStop"
+        <ToggleButton
+            android:id="@+id/buttonStartStop"
             android:layout_width="200dp"
             android:layout_height="50dp"
             android:layout_below="@id/textViewIP"
             android:layout_centerInParent="true"
+            android:textOn="@string/button_stop_server"
+            android:textOff="@string/button_start_server"
             android:onClick="onStartStopClick"/>
     </RelativeLayout>
 

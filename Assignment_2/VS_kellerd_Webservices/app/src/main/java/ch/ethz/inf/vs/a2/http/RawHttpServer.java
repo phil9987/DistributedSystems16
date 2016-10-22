@@ -91,8 +91,11 @@ public class RawHttpServer implements Runnable{
         public void run() {
             try{
                 String request = input.readLine(); //GET path HTTP/1.1
-                String[] requestParam = request.split(" ");
-                String path = requestParam[1];
+                String path = "";
+                if (request != null) {
+                    String[] requestParam = request.split(" ");
+                    path = requestParam[1];
+                }
                 Log.d(SERVER_TAG, path);
                 output.write(handler.handle(path, request));
                 output.flush();

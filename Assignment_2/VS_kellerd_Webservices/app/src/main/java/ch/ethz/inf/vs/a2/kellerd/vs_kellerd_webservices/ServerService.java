@@ -198,6 +198,7 @@ public class ServerService extends Service implements SensorEventListener, HttpR
     public void onDestroy() {
         sensorMgr.unregisterListener(this);
         server.stop();
+        player.stop();
         super.onDestroy();
     }
 

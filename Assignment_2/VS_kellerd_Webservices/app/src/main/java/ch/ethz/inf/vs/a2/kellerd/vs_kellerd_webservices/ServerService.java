@@ -8,16 +8,13 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.Vibrator;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.util.Enumeration;
+
+import java.util.Arrays;
 
 import ch.ethz.inf.vs.a2.http.HttpRequestHandler;
 import ch.ethz.inf.vs.a2.http.RawHttpServer;
@@ -39,19 +36,17 @@ public class ServerService extends Service implements SensorEventListener, HttpR
         return null;
     }
 
-    private static final String acutator1_on = "flashlightOn"; // actuator to turn on flashlight
-    private static final String actuator1_off = "flashlightOff";    // actuator to turn off flashlight
+    private static final String acutator1 = "temperature"; // actuator to turn on flashlight
     private static final String actuator2 = "vibrate" ; // vibrate for 5 seconds
     private static final String sensor1 = "ambientlight";
     private static final String sensor2 = "barometer";
     private static final String root = "";
 
-    private String a1onurl = "/" + acutator1_on + "/";
-    private String a1offurl = "/" + actuator1_off + "/";
+    private String a1url = "/" + acutator1 + "/";
     private String a2url = "/" + actuator2 + "/";
     private String s1url = "/" + sensor1 + "/";
     private String s2url = "/" + sensor2 + "/";
-    
+
     private String beginBody = "</title></head><body>\n";
     private String endBody = "</body></html>\r\n\r\n";
 
@@ -68,12 +63,12 @@ public class ServerService extends Service implements SensorEventListener, HttpR
     private SensorManager sensorMgr;
     private Sensor lightSensor;
     private Sensor barometer;
+    private Sensor temperatureSensor;
 
     private double lightVal;
     private double barometerVal;
+    private double temperature;
 
-    private android.hardware.Camera cam;
-    private android.hardware.Camera.Parameters camParams;
     private String getHeader(String ip){
         return "<!DOCTYPE html>" +
                 "<html> \n" +
@@ -83,17 +78,12 @@ public class ServerService extends Service implements SensorEventListener, HttpR
     }
     // builder to generate http response, id=requested sensor/actuator
     private String pageBuilder (String id){
-        String title = null;
-        String body = null;
-        if (id.equals(acutator1_on)){
-            title = "Flashlight activated";
+        String title;
+        String body;
+        if (id.equals(acutator1)){
+            title = "Ambient Temperature";
             body = paragraph(bold(title)) + "\r\n\r\n" +
-                    paragraph("Flashlight is now activated. To turn it off, " + getLink(a1offurl, "click here."));
-        }
-        else if (id.equals(actuator1_off)){
-            title = "Flashlight deactivated";
-            body = paragraph(bold(title)) + "\r\n\r\n" +
-                    paragraph("Flashlight is now deactivated. To turn it on, " + getLink(a1onurl, "click here."));
+                    paragraph("Ambient temperature measured by the phone: " + String.format("%.2f",temperature) + " °C");
         }
         else if (id.equals(actuator2)){
             title = "Vibration actuator page";
@@ -114,8 +104,7 @@ public class ServerService extends Service implements SensorEventListener, HttpR
             title = "REST webserver root page";
             body = paragraph(bold(title))+ "\r\n\r\n" +
                     paragraph("Welcome to our REST server powered by Android") + "\r\n"
-                    + paragraph(getLink(a1onurl, "Actuator 1: Flashlight on")) + "\r\n"
-                    + paragraph(getLink(a1offurl, "Actuator 1: Flashlight off")) + "\r\n"
+                    + paragraph(getLink(a1url, "Actuator 1: Temperature")) + "\r\n"
                     + paragraph(getLink(a2url, "Actuator 2: Vibration")) + "\r\n"
                     + paragraph(getLink(s1url, "Sensor 1: Ambient light")) + "\r\n"
                     + paragraph(getLink(s2url, "Sensor 2: Barometer"));
@@ -178,16 +167,24 @@ public class ServerService extends Service implements SensorEventListener, HttpR
         lightSensor = sensorMgr.getDefaultSensor(Sensor.TYPE_LIGHT);
         if (lightSensor != null) {
             sensorMgr.registerListener(this,lightSensor,SensorManager.SENSOR_DELAY_UI);
-            Log.d(SERVICE_TAG, lightSensor.getName());
+            Log.d(SERVICE_TAG, "Listener registered for " + lightSensor.getName() + " Sensor.");
         }else{
             Log.d(SERVICE_TAG, "no light sensor available...");
         }
         barometer = sensorMgr.getDefaultSensor(Sensor.TYPE_PRESSURE);
         if (barometer != null) {
             sensorMgr.registerListener(this,barometer,SensorManager.SENSOR_DELAY_NORMAL);
-            Log.d(SERVICE_TAG, barometer.getName());
+            Log.d(SERVICE_TAG, "Listener registered for " + barometer.getName() + " Sensor.");
         }else{
             Log.d(SERVICE_TAG, "no barometer sensor available...");
+        }
+
+        temperatureSensor = sensorMgr.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
+        if (temperatureSensor != null){
+            sensorMgr.registerListener(this, temperatureSensor, SensorManager.SENSOR_DELAY_UI);
+            Log.d(SERVICE_TAG, "Listener registered for " + temperatureSensor.getName() + " Sensor.");
+        }else{
+            Log.d(SERVICE_TAG, "no temperature sensor available...");
         }
 
 
@@ -206,51 +203,31 @@ public class ServerService extends Service implements SensorEventListener, HttpR
         super.onDestroy();
     }
 
-    // helpers to trigger actuators
-
-    private void flashlightAction(Boolean activate){
-        try {
-            if (activate) {
-                cam = android.hardware.Camera.open();
-                camParams = cam.getParameters();
-                camParams.setFlashMode(android.hardware.Camera.Parameters.FLASH_MODE_TORCH);
-                cam.setParameters(camParams);
-                cam.startPreview();
-            }else{
-                camParams = cam.getParameters();
-                camParams.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
-                cam.setParameters(camParams);
-                cam.stopPreview();
-            }
-        }
-        catch (RuntimeException e){
-            Log.e("Error", e.getMessage());
-        }
-    }
 
     private void vibrationAction(){
         Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         vibrator.vibrate(5000);
     }
 
-
-
-
+    
     //SensorListener functionality
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
     }
+
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_PRESSURE){
-            barometerVal = event.values[0];
-            Log.d(SERVICE_TAG, "PRESSURE SENSOR CHANGED!!!");
-            Log.d(SERVICE_TAG, Double.toString(barometerVal));
-        }
-        else if (event.sensor.getType() == Sensor.TYPE_LIGHT){
-            lightVal = event.values[0];
+        switch (event.sensor.getType()){
+            case Sensor.TYPE_PRESSURE:
+                barometerVal = event.values[0];
+                break;
+            case Sensor.TYPE_LIGHT:
+                lightVal = event.values[0];
+                break;
+            case Sensor.TYPE_AMBIENT_TEMPERATURE:
+                temperature = event.values[0];
+                break;
         }
     }
 
@@ -261,11 +238,8 @@ public class ServerService extends Service implements SensorEventListener, HttpR
         String page = pageBuilder(path);
         //Log.d(SERVICE_TAG, page);
         switch(path){
-            case acutator1_on:     //flashlight on
-                flashlightAction(true);
-                break;
-            case actuator1_off:
-                flashlightAction(false);
+            case acutator1:     //temperature
+
                 break;
             case actuator2:     //vibration
                 vibrationAction();
@@ -281,7 +255,7 @@ public class ServerService extends Service implements SensorEventListener, HttpR
 
         }
         String response = responseBuilder(page);
-        Log.d(SERVICE_TAG, response);
+        //Log.d(SERVICE_TAG, response);
         return response;
     }
 

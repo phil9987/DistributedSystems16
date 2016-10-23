@@ -14,4 +14,8 @@
     <string name="tempBtnTxt">get temperature</string>
     <string name="spot3Txt">Spot 3</string>
     <string name="spot4Txt">Spot 4</string>
+    <string name="server_activity_title">REST Server</string>
+    <string name="button_start_server">Start Server</string>
+    <string name="button_stop_server">Stop Server</string>
+
 </resources>

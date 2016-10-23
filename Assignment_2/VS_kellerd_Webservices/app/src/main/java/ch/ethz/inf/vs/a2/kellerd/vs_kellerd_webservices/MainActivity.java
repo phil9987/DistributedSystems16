@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onServerButtonClick(View view) {
-        // TODO: Open Server Activity
+        Intent serverIntent = new Intent(this, ServerActivity.class);
+        this.startActivity(serverIntent);
     }
 }

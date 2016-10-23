@@ -51,12 +51,7 @@ public class ServerService extends Service implements SensorEventListener, HttpR
     private String a2url = "/" + actuator2 + "/";
     private String s1url = "/" + sensor1 + "/";
     private String s2url = "/" + sensor2 + "/";
-
-    private String header = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd>" +
-            "<html xmlns=\"http://www.w3.org/1999/xhtml\"> \n" +
-            "\t<head>\n" +
-            "<base href=\"" + ipAddress + "\" />\n" +
-            "\t\t<title>";
+    
     private String beginBody = "</title></head><body>\n";
     private String endBody = "</body></html>\r\n\r\n";
 
@@ -80,8 +75,8 @@ public class ServerService extends Service implements SensorEventListener, HttpR
     private android.hardware.Camera cam;
     private android.hardware.Camera.Parameters camParams;
     private String getHeader(String ip){
-        return "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd>" +
-                "<html xmlns=\"http://www.w3.org/1999/xhtml\"> \n" +
+        return "<!DOCTYPE html>" +
+                "<html> \n" +
                 "\t<head>\n" +
                 "<base href=\"" + "http://" + ip + "\" />\n" +
                 "\t\t<title>";

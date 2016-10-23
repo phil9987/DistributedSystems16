@@ -66,10 +66,13 @@ C)  We would define it in the <soap:binding transport="..."/>  attribute. e.g. <
     The soap:address in the service would be a e-mail address 
 
 5. (Android Emluator Networking)
-A)
+A) ip = 10.0.2.15
+It is the same even if we run multiple emulators because every emulator has its own network/ethernet interface.
+The only way to access the device is to create a port-forwarding from the host-laptop to the emulator.
 
-B)
+B) To localhost (itself).
 
-C)
+C) 127.0.0.1:PORT if a port-forwarding has been set with the adb tool.
 
-D)
+D) the command 'adb forward tcp:12345 tcp:8034' will forward the port 12345 of the development machine to port 8034 on the emulator. The emulator can therefore be reached from the development machine by the address 127.0.0.1:12345.
+

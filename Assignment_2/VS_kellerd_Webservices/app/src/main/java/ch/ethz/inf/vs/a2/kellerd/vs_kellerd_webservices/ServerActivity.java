@@ -36,6 +36,11 @@ public class ServerActivity extends AppCompatActivity {
         Log.d(ACTIVITY_TAG, "IP = " + ip);
         serverService.putExtra("ip", ip + ":8034");
 
+
+    }
+
+    public String getString(Object a){
+        return a.toString();
     }
 
     public void onStartStopClick(View v){

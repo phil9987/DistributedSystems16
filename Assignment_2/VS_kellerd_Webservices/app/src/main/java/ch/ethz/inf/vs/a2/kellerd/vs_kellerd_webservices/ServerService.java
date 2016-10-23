@@ -8,6 +8,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.MediaPlayer;
 import android.os.IBinder;
 import android.os.Vibrator;
 import android.support.annotation.Nullable;
@@ -29,6 +30,8 @@ public class ServerService extends Service implements SensorEventListener, HttpR
     public static final int SERVERPORT = 8034;
     protected static RawHttpServer server = null;
     private String ipAddress;
+    private MediaPlayer player;
+
 
     @Nullable
     @Override
@@ -36,7 +39,7 @@ public class ServerService extends Service implements SensorEventListener, HttpR
         return null;
     }
 
-    private static final String acutator1 = "temperature"; // actuator to turn on flashlight
+    private static final String acutator1 = "sound"; // actuator to turn on flashlight
     private static final String actuator2 = "vibrate" ; // vibrate for 5 seconds
     private static final String sensor1 = "ambientlight";
     private static final String sensor2 = "barometer";
@@ -63,11 +66,9 @@ public class ServerService extends Service implements SensorEventListener, HttpR
     private SensorManager sensorMgr;
     private Sensor lightSensor;
     private Sensor barometer;
-    private Sensor temperatureSensor;
 
     private double lightVal;
     private double barometerVal;
-    private double temperature;
 
     private String getHeader(String ip){
         return "<!DOCTYPE html>" +
@@ -81,9 +82,9 @@ public class ServerService extends Service implements SensorEventListener, HttpR
         String title;
         String body;
         if (id.equals(acutator1)){
-            title = "Ambient Temperature";
+            title = "Sound actuator page";
             body = paragraph(bold(title)) + "\r\n\r\n" +
-                    paragraph("Ambient temperature measured by the phone: " + String.format("%.2f",temperature) + " °C");
+                    paragraph("A sound is being played on the server phone for 30 seconds. Please make sure your sound is turned on.");
         }
         else if (id.equals(actuator2)){
             title = "Vibration actuator page";
@@ -104,7 +105,7 @@ public class ServerService extends Service implements SensorEventListener, HttpR
             title = "REST webserver root page";
             body = paragraph(bold(title))+ "\r\n\r\n" +
                     paragraph("Welcome to our REST server powered by Android") + "\r\n"
-                    + paragraph(getLink(a1url, "Actuator 1: Temperature")) + "\r\n"
+                    + paragraph(getLink(a1url, "Actuator 1: Sound")) + "\r\n"
                     + paragraph(getLink(a2url, "Actuator 2: Vibration")) + "\r\n"
                     + paragraph(getLink(s1url, "Sensor 1: Ambient light")) + "\r\n"
                     + paragraph(getLink(s2url, "Sensor 2: Barometer"));
@@ -178,14 +179,11 @@ public class ServerService extends Service implements SensorEventListener, HttpR
         }else{
             Log.d(SERVICE_TAG, "no barometer sensor available...");
         }
+        int sound = R.raw.piano_short;
+        player = MediaPlayer.create(getApplicationContext(), sound);
+        player.setVolume(1.0f, 1.0f);
+        player.setLooping(false);
 
-        temperatureSensor = sensorMgr.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
-        if (temperatureSensor != null){
-            sensorMgr.registerListener(this, temperatureSensor, SensorManager.SENSOR_DELAY_UI);
-            Log.d(SERVICE_TAG, "Listener registered for " + temperatureSensor.getName() + " Sensor.");
-        }else{
-            Log.d(SERVICE_TAG, "no temperature sensor available...");
-        }
 
 
 
@@ -209,6 +207,12 @@ public class ServerService extends Service implements SensorEventListener, HttpR
         vibrator.vibrate(5000);
     }
 
+    private void soundAction(){
+        if(!player.isPlaying())
+            player.start();
+
+    }
+
     
     //SensorListener functionality
     @Override
@@ -225,9 +229,6 @@ public class ServerService extends Service implements SensorEventListener, HttpR
             case Sensor.TYPE_LIGHT:
                 lightVal = event.values[0];
                 break;
-            case Sensor.TYPE_AMBIENT_TEMPERATURE:
-                temperature = event.values[0];
-                break;
         }
     }
 
@@ -239,7 +240,7 @@ public class ServerService extends Service implements SensorEventListener, HttpR
         //Log.d(SERVICE_TAG, page);
         switch(path){
             case acutator1:     //temperature
-
+                soundAction();
                 break;
             case actuator2:     //vibration
                 vibrationAction();

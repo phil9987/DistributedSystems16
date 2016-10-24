@@ -69,10 +69,10 @@ public class ServerService extends Service implements SensorEventListener, HttpR
     private double barometerVal;
 
     private String getHeader(String ip){
-        return "<!DOCTYPE html>" +
-                "<html> \n" +
+        return "<!DOCTYPE html>\n" +
+                "<html>\n" +
                 "\t<head>\n" +
-                "<base href=\"" + "http://" + ip + "\" />\n" +
+                "\t\t<base href=\"" + "http://" + ip + "\" />\n" +
                 "\t\t<title>";
     }
     private String vibrate_form ="<form method=\"post\" action=''>"+
@@ -119,11 +119,14 @@ public class ServerService extends Service implements SensorEventListener, HttpR
 
         }
         else if (id.equals(sensor1)){
-            title = "Ambientlight sensor page";
-            body = "Ambient light measured by the phone: " + String.format("%.2f",lightVal) + " lx";
             if(html) {
+                title = "Ambientlight sensor page";
+                body = "Ambient light measured by the phone: " + String.format("%.2f",lightVal) + " lx";
                 body = paragraph(bold(title)) + "\r\n\r\n" +
                         paragraph(body);
+            } else {
+                title = "";
+                body = String.format("%.2f",lightVal);
             }
         }
         else if (id.equals(sensor2)){
@@ -132,6 +135,8 @@ public class ServerService extends Service implements SensorEventListener, HttpR
             if(html) {
                 body = paragraph(bold(title)) + "\r\n\r\n" +
                         paragraph(body);
+            } else {
+                body = String.format("%.2f",barometerVal);
             }
         }
         else if (id.equals(root)){
@@ -171,7 +176,6 @@ public class ServerService extends Service implements SensorEventListener, HttpR
             builder.append("\r\n" + paragraph(getLink("./", "Go back to rootpage")));
             builder.append(endBody);
         }else{
-            builder.append(title + "\r\n");
             builder.append(body);
         }
 
@@ -198,7 +202,7 @@ public class ServerService extends Service implements SensorEventListener, HttpR
     }
 
     private String paragraph(String text){
-        return "<p>" + text + "</p";
+        return "<p>" + text + "</p>";
     }
 
     private String getLink(String url, String text){

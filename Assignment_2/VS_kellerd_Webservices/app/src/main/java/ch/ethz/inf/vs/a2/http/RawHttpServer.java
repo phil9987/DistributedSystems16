@@ -92,51 +92,57 @@ public class RawHttpServer implements Runnable{
         @Override
         public void run() {
             Boolean end;
-            String nextLine;
+            String nextLine = "";
             String path = "";
             String[] requestParam;
             String accept = "";
             String request;
             try {
                 request = input.readLine(); //GET path HTTP/1.1
+                Log.d(SERVER_TAG, request);
                 if (request != null) {
                     requestParam = request.split(" ");
                     path = requestParam[1];
+                    //Log.d(SERVER_TAG, path);
                 }
                 end = false;
             } catch(IOException e) {
                 end = true;
                 request = "";
             }
-
-                while (!end) {
-                    try {
-                        nextLine = input.readLine();
-                        Log.d(SERVER_TAG, nextLine);
-                        if (nextLine == null) {
-                            end = true;
-                            Log.d(SERVER_TAG, "request ended!");
-                        } else {
-                            request += "\r\n" + nextLine;
-                            requestParam = nextLine.split(" ");
-                            int index = 0;
-                            for (String a : requestParam) {
-                                Log.d(SERVER_TAG, "el" + index++ + ": " + a.trim());
-                            }
-                            if (requestParam[0].toLowerCase().equals("accept:")) {
-                                accept = requestParam[1].split(",")[0];
-                                Log.d(SERVER_TAG, "accept-encoding detected: " + accept);
-                            }
-
-                        }
-                    } catch (IOException e) {
-                        Log.d(SERVER_TAG, "readline timeout occured, stopping communication thread");
+            int c = 0;
+            while (!end) {
+                try {
+                    c = input.read();
+                    if (c == -1) {
                         end = true;
+                        Log.d(SERVER_TAG, "request ended!");
+                    } else {
+                        request += (char)c;
                     }
+                } catch (IOException e) {
+                    Log.d(SERVER_TAG, "read timeout occured, stopping communication thread");
+                    end = true;
                 }
+            }
+            String data = "";
+            for(String line : request.split("\r\n")){
+                requestParam = line.split(" ");
+                if (requestParam[0].toLowerCase().equals("accept:")) {
+                    accept = requestParam[1].split(",")[0];
+                    Log.d(SERVER_TAG, "accept-encoding detected: " + accept);
+                }
+                requestParam = line.split("=");
+                if(requestParam[0].toLowerCase().equals("pattern")){
+                    requestParam = requestParam[1].split("&");
+                    data = requestParam[0];
+                    data.replaceAll("%2C", ",");
+                }
+            }
+            Log.d(SERVER_TAG, request);
             try{
                 Log.d(SERVER_TAG, path);
-                output.write(handler.handle(path, accept));
+                output.write(handler.handle(path, accept, data));
                 output.flush();
                 input.close();
                 output.close();

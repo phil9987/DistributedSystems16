@@ -5,5 +5,5 @@ package ch.ethz.inf.vs.a2.http;
  */
 
 public interface HttpRequestHandler {
-    public String handle(String path, String request);
+    public String handle(String path, String accept, String data);
 }

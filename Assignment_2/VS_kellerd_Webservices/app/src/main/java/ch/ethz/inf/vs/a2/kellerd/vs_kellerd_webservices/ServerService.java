@@ -74,7 +74,7 @@ public class ServerService extends Service implements SensorEventListener, HttpR
     }
     private String form ="<form method=\"post\" action=''>"+
     "<label for=\"pattern\">Vibrate pattern <small>(pattern separated by commas)</small></label>"+
-    "<input id='pattern' type='text' name='pattern' value='30, 10, 30' />"+
+    "<input id='pattern' type='text' name='pattern' value='30,10,30' />"+
     "<input type='submit' name='Send' value='Send' />"+
     "</form>"+
     "<form method='post' action=''>"+
@@ -277,7 +277,7 @@ public class ServerService extends Service implements SensorEventListener, HttpR
      * Handles a request
      */
     @Override
-    public String handle(String path, String accept) {
+    public String handle(String path, String accept, String data) {
         if (path.startsWith("/")) path = path.substring(1);
         if (path.endsWith("/")) path = path.substring(0,path.length()-1);
         switch(path){
@@ -285,7 +285,7 @@ public class ServerService extends Service implements SensorEventListener, HttpR
                 soundAction();
                 break;
             case actuator2:     //vibration
-                vibrationAction();
+                vibrationAction(data);
                 break;
             case sensor1:       //ambient light
 

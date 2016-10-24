@@ -243,10 +243,18 @@ public class ServerService extends Service implements SensorEventListener, HttpR
     }
 
 
-    private void vibrationAction(){
+    private void vibrationAction(String pattern){
         Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        vibrator.vibrate(5000);
+        long duration = 0;
+        String[] patternElements = pattern.split(",");
+        long vibPattern[] = new long[patternElements.length];
+        for (int i=0; i<patternElements.length; i++){
+            duration = Long.valueOf(patternElements[i]);
+            vibPattern[i]= duration;
+        }
+        vibrator.vibrate(vibPattern,0);
     }
+
 
     private void soundAction(){
         if(!player.isPlaying())

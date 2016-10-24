@@ -72,13 +72,31 @@ public class ServerService extends Service implements SensorEventListener, HttpR
                 "<base href=\"" + "http://" + ip + "\" />\n" +
                 "\t\t<title>";
     }
+    private String form ="<form method=\"post\" action=''>"+
+    "<label for=\"pattern\">Vibrate pattern <small>(pattern separated by commas)</small></label>"+
+    "<input id='pattern' type='text' name='pattern' value='30, 10, 30' />"+
+    "<input type='submit' name='Send' value='Send' />"+
+    "</form>"+
+    "<form method='post' action=''>"+
+    "<select>"+
+    "<option value='foo'>Foo</option>"+
+    "<option value='bar'>Bar</option>"+
+    "<option value='baz'>Baz</option>"+
+    "</select>"+
+    "<input type='submit' name='Send' value='Send' />"+
+    "</form>";
+
+
     // builder to generate http response, id=requested sensor/actuator
     private String pageBuilder (String id, Boolean html){
         String title;
         String body;
         if (id.equals(acutator1)) {
             title = "Sound actuator page";
-            body = "A sound is being played on the server phone for 30 seconds. Please make sure your sound is turned on.";
+            body = "A sound is being played on the server phone for 30 seconds. Please make sure your sound is turned on."+
+                    "\n"+
+                    form;
+            ;
             if (html) {
                 body = paragraph(bold(title)) + "\r\n\r\n" +
                         paragraph(body);

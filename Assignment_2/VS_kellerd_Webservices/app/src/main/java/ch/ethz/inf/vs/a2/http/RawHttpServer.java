@@ -63,7 +63,7 @@ public class RawHttpServer implements Runnable{
             try {
                 socket = serverSocket.accept();
                 Log.d(SERVER_TAG, "incoming connection! starting communication thread!");
-                socket.setSoTimeout(100);
+                socket.setSoTimeout(10);
                 CommunicationThread commThread = new CommunicationThread(socket, handler);
                 new Thread(commThread).start();
             }   catch (IOException e){

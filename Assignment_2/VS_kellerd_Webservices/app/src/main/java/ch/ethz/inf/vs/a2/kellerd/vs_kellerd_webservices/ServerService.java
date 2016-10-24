@@ -12,6 +12,9 @@ import android.os.IBinder;
 import android.os.Vibrator;
 import android.support.annotation.Nullable;
 import android.util.Log;
+
+import java.io.IOException;
+
 import ch.ethz.inf.vs.a2.http.HttpRequestHandler;
 import ch.ethz.inf.vs.a2.http.RawHttpServer;
 
@@ -72,19 +75,21 @@ public class ServerService extends Service implements SensorEventListener, HttpR
                 "<base href=\"" + "http://" + ip + "\" />\n" +
                 "\t\t<title>";
     }
-    private String form ="<form method=\"post\" action=''>"+
+    private String vibrate_form ="<form method=\"post\" action=''>"+
     "<label for=\"pattern\">Vibrate pattern <small>(pattern separated by commas)</small></label>"+
-    "<input id='pattern' type='text' name='pattern' value='30,10,30' />"+
+    "<input id='pattern' type='text' name='pattern' value='3000,1000,3000,1000' />"+
     "<input type='submit' name='Send' value='Send' />"+
     "</form>"+
     "<form method='post' action=''>"+
-    "<select>"+
-    "<option value='foo'>Foo</option>"+
-    "<option value='bar'>Bar</option>"+
-    "<option value='baz'>Baz</option>"+
-    "</select>"+
-    "<input type='submit' name='Send' value='Send' />"+
     "</form>";
+
+    private String sound_form ="<form method=\"post\" action=''>"+
+            "<label for=\"pattern\">Song selection <small>(select 1, 2 or 3, default=1)</small></label>"+
+            "<input id='pattern' type='text' name='pattern' value='1' />"+
+            "<input type='submit' name='Send' value='Send' />"+
+            "</form>"+
+            "<form method='post' action=''>"+
+            "</form>";
 
 
     // builder to generate http response, id=requested sensor/actuator
@@ -95,7 +100,7 @@ public class ServerService extends Service implements SensorEventListener, HttpR
             title = "Sound actuator page";
             body = "A sound is being played on the server phone for 30 seconds. Please make sure your sound is turned on."+
                     "\n"+
-                    form;
+                    sound_form;
             ;
             if (html) {
                 body = paragraph(bold(title)) + "\r\n\r\n" +
@@ -104,7 +109,9 @@ public class ServerService extends Service implements SensorEventListener, HttpR
         }
         else if (id.equals(actuator2)){
             title = "Vibration actuator page";
-            body = "Vibration activated. The phone vibrates for 5s";
+            body = "Vibration activated. The phone vibrates for 5s"
+                    + "\r\n"
+                    + vibrate_form;
             if(html) {
                 body = paragraph(bold(title)) + "\r\n\r\n" +
                         paragraph(body);
@@ -220,10 +227,6 @@ public class ServerService extends Service implements SensorEventListener, HttpR
         }else{
             Log.d(SERVICE_TAG, "no barometer sensor available...");
         }
-        int sound = R.raw.piano_short;
-        player = MediaPlayer.create(getApplicationContext(), sound);
-        player.setVolume(1.0f, 1.0f);
-        player.setLooping(false);
 
 
 
@@ -244,22 +247,47 @@ public class ServerService extends Service implements SensorEventListener, HttpR
 
 
     private void vibrationAction(String pattern){
+        Log.d(SERVICE_TAG, pattern);
         Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         long duration = 0;
-        String[] patternElements = pattern.split(",");
-        long vibPattern[] = new long[patternElements.length];
-        for (int i=0; i<patternElements.length; i++){
-            duration = Long.valueOf(patternElements[i]);
-            vibPattern[i]= duration;
+        try {
+            String[] patternElements = pattern.split(",");
+            long vibPattern[] = new long[patternElements.length];
+            for (int i = 0; i < patternElements.length; i++) {
+                duration = Long.valueOf(patternElements[i]).longValue();
+                vibPattern[i] = duration;
+            }
+            for(Long l : vibPattern){
+                Log.d(SERVICE_TAG, l.toString());
+            }
+
+            vibrator.vibrate(vibPattern, -1);
+        } catch (Exception e){
+            //
+            Log.e(SERVICE_TAG, e.getMessage());
         }
-        vibrator.vibrate(vibPattern,0);
     }
 
 
-    private void soundAction(){
-        if(!player.isPlaying())
+    private void soundAction(String data){
+        int sound;
+        switch(data){
+            case "2":
+                sound = R.raw.piano_short2;
+                break;
+            case "3":
+                sound = R.raw.piano_short3;
+                break;
+            default:
+            case "1":
+                sound = R.raw.piano_short1;
+        }
+        if(player == null || !player.isPlaying()) {
+            player = MediaPlayer.create(getApplicationContext(), sound);
+            player.setVolume(1.0f, 1.0f);
+            player.setLooping(false);
             player.start();
-
+        }
     }
 
     
@@ -285,15 +313,21 @@ public class ServerService extends Service implements SensorEventListener, HttpR
      * Handles a request
      */
     @Override
-    public String handle(String path, String accept, String data) {
+    public String handle(String type, String path, String accept, String data) {
         if (path.startsWith("/")) path = path.substring(1);
         if (path.endsWith("/")) path = path.substring(0,path.length()-1);
+        Log.d(SERVICE_TAG, path);
+        Log.d(SERVICE_TAG, data);
         switch(path){
             case acutator1:     //temperature
-                soundAction();
+                if(type.toLowerCase().equals("post")) {
+                    soundAction(data);
+                }
                 break;
             case actuator2:     //vibration
-                vibrationAction(data);
+                if(type.toLowerCase().equals("post")) {
+                    vibrationAction(data);
+                }
                 break;
             case sensor1:       //ambient light
 

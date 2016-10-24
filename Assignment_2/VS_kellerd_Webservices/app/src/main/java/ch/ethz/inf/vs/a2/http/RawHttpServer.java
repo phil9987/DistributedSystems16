@@ -6,9 +6,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.net.URLDecoder;
 
 /**
  * Created by philipjunker on 22.10.16.
@@ -92,16 +94,17 @@ public class RawHttpServer implements Runnable{
         @Override
         public void run() {
             Boolean end;
-            String nextLine = "";
             String path = "";
             String[] requestParam;
             String accept = "";
+            String type = "";
             String request;
             try {
                 request = input.readLine(); //GET path HTTP/1.1
                 Log.d(SERVER_TAG, request);
                 if (request != null) {
                     requestParam = request.split(" ");
+                    type = requestParam[0];
                     path = requestParam[1];
                     //Log.d(SERVER_TAG, path);
                 }
@@ -136,13 +139,18 @@ public class RawHttpServer implements Runnable{
                 if(requestParam[0].toLowerCase().equals("pattern")){
                     requestParam = requestParam[1].split("&");
                     data = requestParam[0];
-                    data.replaceAll("%2C", ",");
+                    try {
+                        data = URLDecoder.decode(data, "UTF-8");
+                        Log.d(SERVER_TAG, data);
+                    } catch (UnsupportedEncodingException f){
+                        Log.e(SERVER_TAG, f.getMessage());
+                    }
                 }
             }
             Log.d(SERVER_TAG, request);
             try{
                 Log.d(SERVER_TAG, path);
-                output.write(handler.handle(path, accept, data));
+                output.write(handler.handle(type, path, accept, data));
                 output.flush();
                 input.close();
                 output.close();

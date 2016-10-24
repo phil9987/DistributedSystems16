@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 
 /**
  * Created by philipjunker on 22.10.16.
@@ -60,6 +61,7 @@ public class RawHttpServer implements Runnable{
             try {
                 socket = serverSocket.accept();
                 Log.d(SERVER_TAG, "incoming connection! starting communication thread!");
+                socket.setSoTimeout(100);
                 CommunicationThread commThread = new CommunicationThread(socket, handler);
                 new Thread(commThread).start();
             }   catch (IOException e){
@@ -89,20 +91,56 @@ public class RawHttpServer implements Runnable{
         }
         @Override
         public void run() {
-            try{
-                String request = input.readLine(); //GET path HTTP/1.1
-                String path = "";
+            Boolean end;
+            String nextLine;
+            String path = "";
+            String[] requestParam;
+            String accept = "";
+            String request;
+            try {
+                request = input.readLine(); //GET path HTTP/1.1
                 if (request != null) {
-                    String[] requestParam = request.split(" ");
+                    requestParam = request.split(" ");
                     path = requestParam[1];
                 }
+                end = false;
+            } catch(IOException e) {
+                end = true;
+                request = "";
+            }
+
+                while (!end) {
+                    try {
+                        nextLine = input.readLine();
+                        Log.d(SERVER_TAG, nextLine);
+                        if (nextLine == null) {
+                            end = true;
+                            Log.d(SERVER_TAG, "request ended!");
+                        } else {
+                            request += "\r\n" + nextLine;
+                            requestParam = nextLine.split(" ");
+                            int index = 0;
+                            for (String a : requestParam) {
+                                Log.d(SERVER_TAG, "el" + index++ + ": " + a.trim());
+                            }
+                            if (requestParam[0].toLowerCase().equals("accept:")) {
+                                accept = requestParam[1].split(",")[0];
+                                Log.d(SERVER_TAG, "accept-encoding detected: " + accept);
+                            }
+
+                        }
+                    } catch (IOException e) {
+                        Log.d(SERVER_TAG, "readline timeout occured, stopping communication thread");
+                        end = true;
+                    }
+                }
+            try{
                 Log.d(SERVER_TAG, path);
-                output.write(handler.handle(path, request));
+                output.write(handler.handle(path, accept));
                 output.flush();
                 input.close();
                 output.close();
-
-            }   catch(IOException e){
+            } catch(IOException e){
                 e.printStackTrace();
             }
             Log.d(SERVER_TAG, "stopping communication thread.");

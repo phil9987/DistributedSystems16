@@ -3,7 +3,6 @@ package ch.ethz.inf.vs.a2.kellerd.vs_kellerd_webservices;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.hardware.Camera;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -13,10 +12,6 @@ import android.os.IBinder;
 import android.os.Vibrator;
 import android.support.annotation.Nullable;
 import android.util.Log;
-
-
-import java.util.Arrays;
-
 import ch.ethz.inf.vs.a2.http.HttpRequestHandler;
 import ch.ethz.inf.vs.a2.http.RawHttpServer;
 
@@ -78,54 +73,82 @@ public class ServerService extends Service implements SensorEventListener, HttpR
                 "\t\t<title>";
     }
     // builder to generate http response, id=requested sensor/actuator
-    private String pageBuilder (String id){
+    private String pageBuilder (String id, Boolean html){
         String title;
         String body;
-        if (id.equals(acutator1)){
+        if (id.equals(acutator1)) {
             title = "Sound actuator page";
-            body = paragraph(bold(title)) + "\r\n\r\n" +
-                    paragraph("A sound is being played on the server phone for 30 seconds. Please make sure your sound is turned on.");
+            body = "A sound is being played on the server phone for 30 seconds. Please make sure your sound is turned on.";
+            if (html) {
+                body = paragraph(bold(title)) + "\r\n\r\n" +
+                        paragraph(body);
+            }
         }
         else if (id.equals(actuator2)){
             title = "Vibration actuator page";
-            body = paragraph(bold(title)) + "\r\n\r\n" +
-                    paragraph("Vibration activated. The phone vibrates for 5s");
+            body = "Vibration activated. The phone vibrates for 5s";
+            if(html) {
+                body = paragraph(bold(title)) + "\r\n\r\n" +
+                        paragraph(body);
+            }
+
         }
         else if (id.equals(sensor1)){
             title = "Ambientlight sensor page";
-            body = paragraph(bold(title)) + "\r\n\r\n" +
-                    paragraph("Ambient light measured by the phone: " + String.format("%.2f",lightVal) + " lx");
+            body = "Ambient light measured by the phone: " + String.format("%.2f",lightVal) + " lx";
+            if(html) {
+                body = paragraph(bold(title)) + "\r\n\r\n" +
+                        paragraph(body);
+            }
         }
         else if (id.equals(sensor2)){
             title = "Barometer sensor page";
-            body = paragraph(bold(title)) + "\r\n\r\n" +
-                    paragraph("Ambient air pressure measured by the phone: " + String.format("%.2f",barometerVal) + " hPa");
+            body = "Ambient air pressure measured by the phone: " + String.format("%.2f",barometerVal) + " hPa";
+            if(html) {
+                body = paragraph(bold(title)) + "\r\n\r\n" +
+                        paragraph(body);
+            }
         }
         else if (id.equals(root)){
             title = "REST webserver root page";
-            body = paragraph(bold(title))+ "\r\n\r\n" +
-                    paragraph("Welcome to our REST server powered by Android") + "\r\n"
-                    + paragraph(getLink(a1url, "Actuator 1: Sound")) + "\r\n"
-                    + paragraph(getLink(a2url, "Actuator 2: Vibration")) + "\r\n"
-                    + paragraph(getLink(s1url, "Sensor 1: Ambient light")) + "\r\n"
-                    + paragraph(getLink(s2url, "Sensor 2: Barometer"));
+            if(html) {
+                body = paragraph(bold(title)) + "\r\n\r\n" +
+                        paragraph("Welcome to our REST server powered by Android") + "\r\n"
+                        + paragraph(getLink(a1url, "Actuator 1: Sound")) + "\r\n"
+                        + paragraph(getLink(a2url, "Actuator 2: Vibration")) + "\r\n"
+                        + paragraph(getLink(s1url, "Sensor 1: Ambient light")) + "\r\n"
+                        + paragraph(getLink(s2url, "Sensor 2: Barometer"));
+            }else{
+                body = "welcome to our REST server powered by Android\r\n"
+                        + "Actuator 1: Sound: " + ipAddress + a1url + "\r\n"
+                        + "Actuator 2: Vibration: " + ipAddress + a2url + "\r\n"
+                        + "Sensor 1: Ambient light: " + ipAddress + s1url + "\r\n"
+                        + "Sensor 2: Barometer: " + ipAddress + s2url + "\r\n";
+            }
         }
         else {
             title = "404: You (or we) screwed up the internet!";
-            body = paragraph(bold(title)) + "\r\n" +
-                    paragraph("Seems like you're trying to access a page that doesn't exist...");
-
+            body = "Seems like you're trying to access a page that doesn't exist...";
+            if(html) {
+                body = paragraph(bold(title)) + "\r\n" +
+                        paragraph(body);
+            }
         }
 
         StringBuilder builder = new StringBuilder("");
-        builder.append(getHeader(ipAddress));
-        builder.append(title);
-        builder.append(beginBody);
-        // add specific page
-        builder.append(body);
-        // link to root page
-        builder.append("\r\n" + paragraph( getLink("./", "Go back to rootpage")));
-        builder.append(endBody);
+        if(html) {
+            builder.append(getHeader(ipAddress));
+            builder.append(title);
+            builder.append(beginBody);
+            // add specific page
+            builder.append(body);
+            // link to root page
+            builder.append("\r\n" + paragraph(getLink("./", "Go back to rootpage")));
+            builder.append(endBody);
+        }else{
+            builder.append(title + "\r\n");
+            builder.append(body);
+        }
 
         return builder.toString();
     }
@@ -190,7 +213,6 @@ public class ServerService extends Service implements SensorEventListener, HttpR
         Log.d(SERVICE_TAG, "ServerService starting...");
         this.server = new RawHttpServer();
         server.start(SERVERPORT, this);
-        // TODO build&send response (pageBuilder, responseBuilder)
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -233,12 +255,13 @@ public class ServerService extends Service implements SensorEventListener, HttpR
         }
     }
 
+    /*
+     * Handles a request
+     */
     @Override
-    public String handle(String path, String request) {
+    public String handle(String path, String accept) {
         if (path.startsWith("/")) path = path.substring(1);
         if (path.endsWith("/")) path = path.substring(0,path.length()-1);
-        String page = pageBuilder(path);
-        //Log.d(SERVICE_TAG, page);
         switch(path){
             case acutator1:     //temperature
                 soundAction();
@@ -256,9 +279,14 @@ public class ServerService extends Service implements SensorEventListener, HttpR
                 break;
 
         }
-        String response = responseBuilder(page);
-        //Log.d(SERVICE_TAG, response);
-        return response;
+        String page;
+
+        if (accept.equals("text/plain")) {
+            page = pageBuilder(path, false);
+        }else{
+            page = pageBuilder(path, true);
+        }
+        return responseBuilder(page);
     }
 
 }

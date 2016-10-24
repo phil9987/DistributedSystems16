@@ -14,7 +14,7 @@ C)  1. Content negothiation using the `Accept` header field.
 
 2. (Network I/O)
 A)  `Socket` and `ServerSocket`. 
-    `Socked` is used in the client to open a connection to a server. We then 
+    `Socket` is used in the client to open a connection to a server. We then 
     can use the `OutputStream` and `InputStream` to send and receive data over 
     the TCP connection respectively.
     TODO: `ServerSocket`

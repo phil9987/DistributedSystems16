@@ -75,4 +75,3 @@ B) To localhost (itself).
 C) 127.0.0.1:PORT if a port-forwarding has been set with the adb tool.
 
 D) the command 'adb forward tcp:12345 tcp:8034' will forward the port 12345 of the development machine to port 8034 on the emulator. The emulator can therefore be reached from the development machine by the address 127.0.0.1:12345.
-

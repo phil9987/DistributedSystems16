@@ -17,7 +17,7 @@ A)  `Socket` and `ServerSocket`.
     `Socket` is used in the client to open a connection to a server. We then 
     can use the `OutputStream` and `InputStream` to send and receive data over 
     the TCP connection respectively.
-    TODO: `ServerSocket`
+    `ServerSocket` waits for incoming connections and returns a `Socket` if a connection is opened (which can then be handled by a communication thread).
 
 B)  When we use `InputStream` and the input didn't arrive a call to `read()` 
     is blocking. This means the program doesn't continue to exectue until 

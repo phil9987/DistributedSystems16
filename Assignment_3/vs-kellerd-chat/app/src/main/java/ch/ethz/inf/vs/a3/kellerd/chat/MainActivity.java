@@ -6,10 +6,12 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
+import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +30,7 @@ import ch.ethz.inf.vs.a3.udpclient.NetworkConsts;
 
 public class MainActivity extends AppCompatActivity {
     private SharedPreferences mSharedPrefences;
+    private EditText mUsername_field;
     private int mPort;
     private int mServerAddress;
     private DatagramSocket socket;
@@ -40,14 +43,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mUsername_field = (EditText) findViewById(R.id.username_field);
+
+
     }
 
     public void onJoinButtonClick(View view) {
         //TODO generate UUID
-        TextView tv_userName = (TextView) view.findViewById(R.id.username);
 
-
-        String userName = tv_userName.getText().toString();
+        String userName = mUsername_field.getText().toString();
         RegistrationThread registrationThread = new RegistrationThread();
         registrationThread.execute(userName);
     }
@@ -116,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
             }
             catch (IOException | JSONException e){
                 e.printStackTrace();
-                Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT);
+//                Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT);
             }
             return false;
         }

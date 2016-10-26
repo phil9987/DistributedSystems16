@@ -11,17 +11,13 @@
     android:orientation="vertical"
     tools:context="ch.ethz.inf.vs.a3.kellerd.chat.MainActivity">
 
-    <android.support.design.widget.TextInputLayout
+    <EditText
+        android:id="@+id/username_field"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <android.support.design.widget.TextInputEditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/username_label"
-            android:id="@+id/username" />
-
-    </android.support.design.widget.TextInputLayout>
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:hint="@string/username_label"
+        android:ems="10" />
 
     <Button
         android:id="@+id/join_button"
@@ -36,4 +32,5 @@
         android:layout_height="wrap_content"
         android:text="@string/settings_button"
         android:onClick="onSettingsButtonClick" />
+
 </LinearLayout>

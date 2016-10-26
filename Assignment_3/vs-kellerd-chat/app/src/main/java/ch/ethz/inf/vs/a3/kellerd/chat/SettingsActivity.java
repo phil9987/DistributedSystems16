@@ -40,6 +40,10 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
      */
+
+    public static final String KEY_PREF_SERVER_ADDRESS = "server_address_prefernce";
+    public static final String KEY_PREF_SERVER_PORT = "server_port_preference";
+
     private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
         @Override
         public boolean onPreferenceChange(Preference preference, Object value) {

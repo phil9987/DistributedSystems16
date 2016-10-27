@@ -14,10 +14,13 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.UUID;
 
@@ -84,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         protected Boolean register(String username){
+
             messageJson = new JSONObject();
             messageHdr = new JSONObject();
             String userName = username;
@@ -95,18 +99,20 @@ public class MainActivity extends AppCompatActivity {
            // mPort = mSharedPreferences.getInt(SettingsActivity.KEY_PREF_SERVER_PORT, Integer.valueOf(mPort));
 
             try {
-               messageHdr.put("username", userName);
+                messageHdr.put("username", userName);
                 messageHdr.put("uuid", mUUID.toString());
                 messageHdr.put("timestamp", "{}");
                 messageHdr.put("type", MessageTypes.REGISTER);
+                JSONObject messageBody = new JSONObject();
                 messageJson.put("header", messageHdr);
-                messageJson.put("body", "{}");
+                messageJson.put("body", messageBody);
                 socket = new DatagramSocket();
                 Log.d(REGISTRATION_TAG, "recipient address: " + (mServerAddress) + ":" + mPort);
                 InetAddress address = InetAddress.getByName(mServerAddress);
                 int messageLength = messageJson.length();
-                byte[] message = messageJson.toString().getBytes();
-                DatagramPacket packet = new DatagramPacket(message, messageLength, address, Integer.valueOf(mPort));
+                Log.d(REGISTRATION_TAG, "messageLength = " + messageLength);
+                byte[] message = messageJson.toString().getBytes(StandardCharsets.UTF_8);
+                DatagramPacket packet = new DatagramPacket(message, message.length, address, Integer.valueOf(mPort));
                 Log.d(REGISTRATION_TAG, "data sent: " + messageJson);
                 socket.send(packet);
                 socket.setSoTimeout(NetworkConsts.SOCKET_TIMEOUT);

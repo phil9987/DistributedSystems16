@@ -1,19 +1,14 @@
 package ch.ethz.inf.vs.a3.kellerd.chat;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.os.AsyncTask;
-import android.os.StrictMode;
 import android.preference.PreferenceManager;
-import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONException;
@@ -23,8 +18,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import java.util.Map;
 import java.util.UUID;
 
 import ch.ethz.inf.vs.a3.message.MessageTypes;
@@ -32,10 +26,10 @@ import ch.ethz.inf.vs.a3.udpclient.NetworkConsts;
 
 public class MainActivity extends AppCompatActivity {
     private static final String MAINACTIVITY_TAG = "MAINACTIVITY";
-    private SharedPreferences mSharedPrefences;
+    private SharedPreferences mSharedPreferences;
     private EditText mUsername_field;
-    private int mPort = 4446;
-    private String mServerAddress = "10.2.141.45";
+    private String mPort;
+    private String mServerAddress;
     private DatagramSocket socket;
     private JSONObject messageJson;
     private JSONObject messageHdr;
@@ -50,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mUsername_field = (EditText) findViewById(R.id.username_field);
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         mUUID = UUID.randomUUID();
 
 
@@ -93,25 +88,25 @@ public class MainActivity extends AppCompatActivity {
             messageHdr = new JSONObject();
             String userName = username;
 
-
-            mSharedPrefences = getSharedPreferences("pref_general", Context.MODE_PRIVATE);
-            mServerAddress = mSharedPrefences.getString(SettingsActivity.KEY_PREF_SERVER_ADDRESS, mServerAddress);
-            mPort = mSharedPrefences.getInt(SettingsActivity.KEY_PREF_SERVER_PORT, mPort);
+            Map prefMap = mSharedPreferences.getAll();
+            mServerAddress = (String) prefMap.get("server_address_preference");
+            mPort = (String) prefMap.get("server_port_preference");
+           // mServerAddress = mSharedPreferences.getString(SettingsActivity.KEY_PREF_SERVER_ADDRESS, mServerAddress);
+           // mPort = mSharedPreferences.getInt(SettingsActivity.KEY_PREF_SERVER_PORT, Integer.valueOf(mPort));
 
             try {
                messageHdr.put("username", userName);
-                //TODO set generated UUID
                 messageHdr.put("uuid", mUUID.toString());
                 messageHdr.put("timestamp", "{}");
                 messageHdr.put("type", MessageTypes.REGISTER);
                 messageJson.put("header", messageHdr);
-                messageJson.put("body", null);
+                messageJson.put("body", "{}");
                 socket = new DatagramSocket();
-                Log.d(ACITIVTY_TAG, (mServerAddress) + ":" + Integer.toString(mPort));
+                Log.d(ACITIVTY_TAG, (mServerAddress) + ":" + mPort);
                 InetAddress address = InetAddress.getByName(mServerAddress);
                 int messageLength = messageJson.length();
                 byte[] message = messageJson.toString().getBytes();
-                DatagramPacket packet = new DatagramPacket(message, messageLength, address, mPort);
+                DatagramPacket packet = new DatagramPacket(message, messageLength, address, Integer.valueOf(mPort));
                 socket.send(packet);
                 socket.setSoTimeout(NetworkConsts.SOCKET_TIMEOUT);
 

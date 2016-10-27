@@ -11,7 +11,7 @@
     <!-- Example General settings -->
     <string name="pref_header_general">General</string>
     <string name="server_address_preference">Server address</string>
-    <string name="server_address_preference_default">10.2.141.45</string>
+    <string name="server_address_preference_default">127.0.1.1</string>
     <string name="server_address_preference_sum">Set the server address</string>
     <string name="server_port_preference">Server port</string>
     <string name="server_port_preference_sum">Set the server port</string>

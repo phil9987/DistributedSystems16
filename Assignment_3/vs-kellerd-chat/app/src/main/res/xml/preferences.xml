@@ -11,9 +11,8 @@
         android:selectAllOnFocus="true"
         android:singleLine="true"
         android:title="@string/server_address_preference"
-        android:key="server_address_prefernce"
+        android:key="server_address_preference"
         android:summary="@string/server_address_preference_sum"
-        android:numeric="integer"
         android:defaultValue="@string/server_address_preference_default" />
     <EditTextPreference
         android:defaultValue="@string/server_port_preference_default"

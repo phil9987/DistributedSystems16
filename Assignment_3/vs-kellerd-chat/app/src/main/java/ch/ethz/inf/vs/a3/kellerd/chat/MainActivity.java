@@ -25,6 +25,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.UUID;
 
 import ch.ethz.inf.vs.a3.message.MessageTypes;
 import ch.ethz.inf.vs.a3.udpclient.NetworkConsts;
@@ -38,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
     private DatagramSocket socket;
     private JSONObject messageJson;
     private JSONObject messageHdr;
+    private UUID mUUID;
+
     private boolean registered = false;
 
 
@@ -46,13 +49,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mUsername_field = (EditText) findViewById(R.id.username_field);
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+        mUUID = UUID.randomUUID();
 
 
     }
 
     public void onJoinButtonClick(View view) {
-        //TODO generate UUID
-
         String userName = mUsername_field.getText().toString();
         RegistrationThread registrationThread = new RegistrationThread();
         registrationThread.execute(userName);
@@ -96,9 +99,9 @@ public class MainActivity extends AppCompatActivity {
             mPort = mSharedPrefences.getInt(SettingsActivity.KEY_PREF_SERVER_PORT, mPort);
 
             try {
-                messageHdr.put("username", userName);
+               messageHdr.put("username", userName);
                 //TODO set generated UUID
-                messageHdr.put("uuid", "ae4e15ff-b589-4e85-a07c-594b16e4e645");
+                messageHdr.put("uuid", mUUID.toString());
                 messageHdr.put("timestamp", "{}");
                 messageHdr.put("type", MessageTypes.REGISTER);
                 messageJson.put("header", messageHdr);

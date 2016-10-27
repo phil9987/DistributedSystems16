@@ -57,10 +57,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public class RegistrationThread extends AsyncTask<String, Integer, Boolean>{
-        private final String ACITIVTY_TAG = "Registration Thread";
+        private final String REGISTRATION_TAG = "Registration Thread";
         @Override
         protected Boolean doInBackground(String... params) {
-            Log.d(MAINACTIVITY_TAG, "started AsyncTask!");
+            Log.d(REGISTRATION_TAG, "started AsyncTask!");
             boolean success = false;
             String userName = params[0];
             for (int registration_attemps = 0; registration_attemps<5; registration_attemps++){
@@ -102,11 +102,12 @@ public class MainActivity extends AppCompatActivity {
                 messageJson.put("header", messageHdr);
                 messageJson.put("body", "{}");
                 socket = new DatagramSocket();
-                Log.d(ACITIVTY_TAG, (mServerAddress) + ":" + mPort);
+                Log.d(REGISTRATION_TAG, "recipient address: " + (mServerAddress) + ":" + mPort);
                 InetAddress address = InetAddress.getByName(mServerAddress);
                 int messageLength = messageJson.length();
                 byte[] message = messageJson.toString().getBytes();
                 DatagramPacket packet = new DatagramPacket(message, messageLength, address, Integer.valueOf(mPort));
+                Log.d(REGISTRATION_TAG, "data sent: " + messageJson);
                 socket.send(packet);
                 socket.setSoTimeout(NetworkConsts.SOCKET_TIMEOUT);
 
@@ -114,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
                 DatagramPacket responsePacket = new DatagramPacket(response,response.length);
                 socket.receive(responsePacket);
                 String responseString = new String(responsePacket.getData());
-                Log.d(ACITIVTY_TAG, responseString);
+                Log.d(REGISTRATION_TAG, "response: " + responseString);
                 JSONObject responseMessage = new JSONObject(responseString);
                 if (responseMessage.getJSONObject("header").get("type").equals("ack")){
                     return  true;

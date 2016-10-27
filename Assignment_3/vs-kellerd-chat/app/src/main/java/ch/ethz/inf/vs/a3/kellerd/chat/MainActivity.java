@@ -3,6 +3,7 @@ package ch.ethz.inf.vs.a3.kellerd.chat;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
@@ -29,10 +30,11 @@ import ch.ethz.inf.vs.a3.message.MessageTypes;
 import ch.ethz.inf.vs.a3.udpclient.NetworkConsts;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String MAINACTIVITY_TAG = "MAINACTIVITY";
     private SharedPreferences mSharedPrefences;
     private EditText mUsername_field;
-    private int mPort;
-    private int mServerAddress;
+    private int mPort = 4446;
+    private String mServerAddress = "10.2.141.45";
     private DatagramSocket socket;
     private JSONObject messageJson;
     private JSONObject messageHdr;
@@ -60,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
         private final String ACITIVTY_TAG = "Registration Thread";
         @Override
         protected Boolean doInBackground(String... params) {
+            Log.d(MAINACTIVITY_TAG, "started AsyncTask!");
             boolean success = false;
             String userName = params[0];
             for (int registration_attemps = 0; registration_attemps<5; registration_attemps++){
@@ -89,8 +92,8 @@ public class MainActivity extends AppCompatActivity {
 
 
             mSharedPrefences = getSharedPreferences("pref_general", Context.MODE_PRIVATE);
-            mServerAddress = mSharedPrefences.getInt(SettingsActivity.KEY_PREF_SERVER_ADDRESS, R.string.server_address_preference_default);
-            mPort = mSharedPrefences.getInt(SettingsActivity.KEY_PREF_SERVER_PORT, R.string.server_port_preference_default);
+            mServerAddress = mSharedPrefences.getString(SettingsActivity.KEY_PREF_SERVER_ADDRESS, mServerAddress);
+            mPort = mSharedPrefences.getInt(SettingsActivity.KEY_PREF_SERVER_PORT, mPort);
 
             try {
                 messageHdr.put("username", userName);
@@ -101,7 +104,8 @@ public class MainActivity extends AppCompatActivity {
                 messageJson.put("header", messageHdr);
                 messageJson.put("body", null);
                 socket = new DatagramSocket();
-                InetAddress address = InetAddress.getByName(String.valueOf(mServerAddress));
+                Log.d(ACITIVTY_TAG, (mServerAddress) + ":" + Integer.toString(mPort));
+                InetAddress address = InetAddress.getByName(mServerAddress);
                 int messageLength = messageJson.length();
                 byte[] message = messageJson.toString().getBytes();
                 DatagramPacket packet = new DatagramPacket(message, messageLength, address, mPort);
@@ -120,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
             }
             catch (IOException | JSONException e){
                 e.printStackTrace();
-//                Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT);
+//              Log.d(Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT);
             }
             return false;
         }

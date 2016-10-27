@@ -41,7 +41,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      * to reflect its new value.
      */
 
-    public static final String KEY_PREF_SERVER_ADDRESS = "server_address_prefernce";
+    public static final String KEY_PREF_SERVER_ADDRESS = "server_address_prefrence";
     public static final String KEY_PREF_SERVER_PORT = "server_port_preference";
 
     private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {

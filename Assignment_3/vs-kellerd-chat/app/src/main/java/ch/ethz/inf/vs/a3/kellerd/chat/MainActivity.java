@@ -112,9 +112,8 @@ public class MainActivity extends AppCompatActivity {
                 socket = new DatagramSocket();
                 Log.d(REGISTRATION_TAG, "recipient address: " + (mServerAddress) + ":" + mPort);
                 InetAddress address = InetAddress.getByName(mServerAddress);
-                int messageLength = messageJson.length();
-                Log.d(REGISTRATION_TAG, "messageLength = " + messageLength);
                 byte[] message = messageJson.toString().getBytes(StandardCharsets.UTF_8);
+                Log.d(REGISTRATION_TAG, "messageLength = " + message.length);
                 DatagramPacket packet = new DatagramPacket(message, message.length, address, Integer.valueOf(mPort));
                 Log.d(REGISTRATION_TAG, "data sent: " + messageJson);
                 socket.send(packet);

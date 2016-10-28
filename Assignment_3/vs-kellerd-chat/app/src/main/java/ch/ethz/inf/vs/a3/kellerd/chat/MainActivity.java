@@ -16,9 +16,7 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -31,7 +29,6 @@ import ch.ethz.inf.vs.a3.udpclient.NetworkConsts;
 
 public class MainActivity extends AppCompatActivity {
     private static final String MAINACTIVITY_TAG = "MAINACTIVITY";
-    private SharedPreferences mSharedPreferences;
     private EditText mUsername_field;
     private String mPort;
     private String mServerAddress;
@@ -39,6 +36,9 @@ public class MainActivity extends AppCompatActivity {
     private JSONObject messageJson;
     private JSONObject messageHdr;
     private UUID mUUID;
+
+    public SharedPreferences SharedPreferences;
+    private String username;
 
     private boolean registered = false;
 
@@ -49,16 +49,16 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mUsername_field = (EditText) findViewById(R.id.username_field);
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
-        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         mUUID = UUID.randomUUID();
 
 
     }
 
     public void onJoinButtonClick(View view) {
-        String userName = mUsername_field.getText().toString();
+        username = mUsername_field.getText().toString();
         RegistrationThread registrationThread = new RegistrationThread();
-        registrationThread.execute(userName);
+        registrationThread.execute(username);
     }
 
     public class RegistrationThread extends AsyncTask<String, Integer, Boolean>{
@@ -79,8 +79,10 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Boolean result) {
-            if (result){
+            if (registered){
                 Intent chatIntent = new Intent(getApplicationContext(), ChatActivity.class);
+                chatIntent.putExtra("username", username);
+                chatIntent.putExtra("uuid", mUUID.toString());
                 startActivity(chatIntent);
             }
             else {
@@ -93,11 +95,11 @@ public class MainActivity extends AppCompatActivity {
             messageHdr = new JSONObject();
             String userName = username;
 
-            Map prefMap = mSharedPreferences.getAll();
+            Map prefMap = SharedPreferences.getAll();
             //mServerAddress = (String) prefMap.get("server_address_preference");
             //mPort = (String) prefMap.get("server_port_preference");
-            mServerAddress = mSharedPreferences.getString(SettingsActivity.KEY_PREF_SERVER_ADDRESS, mServerAddress);
-            mPort = mSharedPreferences.getString(SettingsActivity.KEY_PREF_SERVER_PORT, mPort);
+            mServerAddress = SharedPreferences.getString(SettingsActivity.KEY_PREF_SERVER_ADDRESS, mServerAddress);
+            mPort = SharedPreferences.getString(SettingsActivity.KEY_PREF_SERVER_PORT, mPort);
 
             try {
                 messageHdr.put("username", userName);

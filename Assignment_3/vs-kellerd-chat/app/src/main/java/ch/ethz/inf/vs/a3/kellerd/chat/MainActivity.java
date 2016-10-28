@@ -1,5 +1,7 @@
 package ch.ethz.inf.vs.a3.kellerd.chat;
 
+//https://kb.vmware.com/selfservice/microsites/search.do?language=en_US&cmd=displayKC&externalId=2006955
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -64,15 +66,15 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Boolean doInBackground(String... params) {
             Log.d(REGISTRATION_TAG, "started AsyncTask!");
-            boolean success = false;
             String userName = params[0];
-            for (int registration_attemps = 0; registration_attemps<5; registration_attemps++){
-                success = register(userName);
-                if (success){
+            register(userName);
+            for (int registration_attempts = 1; registration_attempts<5; registration_attempts++){
+                if (registered){
                     break;
                 }
+                else register(userName);
             }
-            return success;
+            return registered;
         }
 
         @Override
@@ -87,16 +89,15 @@ public class MainActivity extends AppCompatActivity {
         }
 
         protected Boolean register(String username){
-
             messageJson = new JSONObject();
             messageHdr = new JSONObject();
             String userName = username;
 
             Map prefMap = mSharedPreferences.getAll();
-            mServerAddress = (String) prefMap.get("server_address_preference");
-            mPort = (String) prefMap.get("server_port_preference");
-           // mServerAddress = mSharedPreferences.getString(SettingsActivity.KEY_PREF_SERVER_ADDRESS, mServerAddress);
-           // mPort = mSharedPreferences.getInt(SettingsActivity.KEY_PREF_SERVER_PORT, Integer.valueOf(mPort));
+            //mServerAddress = (String) prefMap.get("server_address_preference");
+            //mPort = (String) prefMap.get("server_port_preference");
+            mServerAddress = mSharedPreferences.getString(SettingsActivity.KEY_PREF_SERVER_ADDRESS, mServerAddress);
+            mPort = mSharedPreferences.getString(SettingsActivity.KEY_PREF_SERVER_PORT, mPort);
 
             try {
                 messageHdr.put("username", userName);
@@ -124,14 +125,17 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(REGISTRATION_TAG, "response: " + responseString);
                 JSONObject responseMessage = new JSONObject(responseString);
                 if (responseMessage.getJSONObject("header").get("type").equals("ack")){
-                    return  true;
+                    registered = true;
                 }
             }
             catch (IOException | JSONException e){
-                e.printStackTrace();
+//                e.printStackTrace();
 //              Log.d(Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT);
             }
-            return false;
+            finally {
+                return registered ;
+            }
+
         }
     }
 

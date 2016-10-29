@@ -9,6 +9,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:orientation="vertical"
+    android:background="#8fa0a7"
     tools:context="ch.ethz.inf.vs.a3.kellerd.chat.MainActivity">
 
     <EditText

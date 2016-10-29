@@ -8,18 +8,21 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:background="#8fa0a7"
     tools:context="ch.ethz.inf.vs.a3.kellerd.chat.ChatActivity">
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"></RelativeLayout>
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/textViewChatLog"
         android:text="@string/chat_placeholder"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"/>
+        android:layout_above="@+id/buttonGetChatLog"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true" />
 
     <Button
         android:id="@+id/buttonGetChatLog"
@@ -27,7 +30,6 @@
         android:layout_width="150dp"
         android:layout_height="50dp"
         android:onClick="onGetChatLogClick"
-        android:layout_marginBottom="17dp"
         android:layout_alignParentBottom="true"
-        android:layout_alignEnd="@+id/textView" />
+        android:layout_centerHorizontal="true" />
 </RelativeLayout>

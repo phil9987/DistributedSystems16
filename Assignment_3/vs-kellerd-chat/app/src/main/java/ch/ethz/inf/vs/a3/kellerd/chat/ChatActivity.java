@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONException;
@@ -40,6 +41,7 @@ public class ChatActivity extends AppCompatActivity {
     private UUID mUUID;
     private PriorityQueue<Message> msgPriorityQueue;
     private Comparator<Message> msgComparator;
+    public TextView chatlog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +52,7 @@ public class ChatActivity extends AppCompatActivity {
         mUUID = UUID.fromString(getIntent().getStringExtra("uuid"));
         msgComparator = new MessageComparator();
         msgPriorityQueue = new PriorityQueue<Message>(25, msgComparator);
+        chatlog = (TextView) findViewById(R.id.textViewChatLog);
     }
 
     @Override
@@ -67,10 +70,6 @@ public class ChatActivity extends AppCompatActivity {
     public void onGetChatLogClick(View v){
         ChatLogThread chatlog = new ChatLogThread();
         chatlog.execute(username);
-        while(!msgPriorityQueue.isEmpty()){
-            Message m = msgPriorityQueue.poll();
-            Log.d(CHATACTIVITY_TAG, m.getContent());
-        }
     }
 
     public class ChatLogThread extends AsyncTask<String, Integer, Boolean> {
@@ -133,7 +132,7 @@ public class ChatActivity extends AppCompatActivity {
                     JSONObject responseMessage = new JSONObject(responseString);
                     Message msg = new Message(responseMessage.getJSONObject("header").get("timestamp").toString(),
                             responseMessage.getJSONObject("body").get("content").toString());
-                    Log.d(CHATLOG_TAG, msg.getContent());
+                    //Log.d(CHATLOG_TAG, msg.getContent());
                     msgPriorityQueue.add(msg);
                     if (!responseMessage.getJSONObject("header").get("type").equals("message")) {
                         result = true;
@@ -144,9 +143,21 @@ public class ChatActivity extends AppCompatActivity {
                 result = true;
             }
 
-
             return result ;
 
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            int i = 0;
+            String chatlogString = "";
+            while(!msgPriorityQueue.isEmpty()){
+                Message m = msgPriorityQueue.remove();
+                chatlogString += m.getContent() + "\n";
+                //Log.d(CHATACTIVITY_TAG, "element " + i++ + " " +  m.getContent());
+            }
+            chatlog.setText(chatlogString);
+            super.onPostExecute(aBoolean);
         }
     }
 

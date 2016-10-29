@@ -129,13 +129,6 @@ public class VectorClock implements Clock {
         }
 
         if(!failed){
-            /*if (this.vector != null){       // add elements of newVector to this.vector
-                for (Map.Entry<Integer, Integer> entry : newVector.entrySet()) {
-                    this.vector.put(entry.getKey(), entry.getValue());
-                }
-            }else{
-                this.vector = newVector;
-            }*/
             this.vector = newVector;
         }
 

@@ -1,5 +1,7 @@
 package ch.ethz.inf.vs.a3.clock;
 
+import android.util.Log;
+
 import org.junit.Assert;
 import org.junit.Test;
 

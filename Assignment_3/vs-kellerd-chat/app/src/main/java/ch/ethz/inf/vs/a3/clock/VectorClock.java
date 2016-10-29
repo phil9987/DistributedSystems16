@@ -26,11 +26,17 @@ public class VectorClock implements Clock {
     @Override
     public void update(Clock other) {
         VectorClock otherVectorClock = (VectorClock) other;
-        for (Map.Entry<Integer, Integer> entry : vector.entrySet()) {
-            Integer time = entry.getValue();
-            Integer otherTime = otherVectorClock.getTime(entry.getKey());
-            Integer newTime = time < otherTime ? otherTime : time;
-            entry.setValue(newTime);
+        Map<Integer, Integer> otherVector = otherVectorClock.getVector();
+        for (Map.Entry<Integer, Integer> entry : otherVector.entrySet()) {
+            Integer otherPid = entry.getKey();
+            Integer otherTime = entry.getValue();
+            if(vector.containsKey(otherPid)){
+                Integer time = this.getTime(otherPid);
+                Integer newTime = time < otherTime ? otherTime : time;
+                vector.put(otherPid, newTime);
+            }else{
+                vector.put(otherPid,otherTime);
+            }
         }
     }
 
@@ -91,16 +97,16 @@ public class VectorClock implements Clock {
     public void setClockFromString(String clock) {
         Map<Integer, Integer> newVector = new HashMap<>();
         Boolean failed = false;
-        JSONObject responseMessage;
+        JSONObject jsonClock;
         try{
-             responseMessage = new JSONObject(clock);
+            jsonClock = new JSONObject(clock);
         }   catch (JSONException e){
-            responseMessage = null;
+            jsonClock = new JSONObject();
         }
-        if (responseMessage != null){
-            Iterator<?> keys = responseMessage.keys();
+        if (jsonClock != null){
+            Iterator<?> keys = jsonClock.keys();
 
-            while( keys.hasNext() && !failed) {
+            while(keys.hasNext() && !failed) {
                 String key = (String)keys.next();
                 int pid = -1;
                 int time = -1;
@@ -110,7 +116,7 @@ public class VectorClock implements Clock {
                     failed = true;
                 }
                 try {
-                    time = responseMessage.getInt(key);
+                    time = jsonClock.getInt(key);
                 } catch (JSONException e){
                     failed = true;
                 }
@@ -123,13 +129,14 @@ public class VectorClock implements Clock {
         }
 
         if(!failed){
-            if (this.vector != null){       // add elements of newVector to this.vector
+            /*if (this.vector != null){       // add elements of newVector to this.vector
                 for (Map.Entry<Integer, Integer> entry : newVector.entrySet()) {
                     this.vector.put(entry.getKey(), entry.getValue());
                 }
             }else{
                 this.vector = newVector;
-            }
+            }*/
+            this.vector = newVector;
         }
 
     }

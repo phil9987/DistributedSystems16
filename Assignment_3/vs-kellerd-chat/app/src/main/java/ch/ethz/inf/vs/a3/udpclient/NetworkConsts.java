@@ -22,5 +22,5 @@ public final class NetworkConsts {
     /**
      * Time to wait for a message in ms
      */
-    public static int SOCKET_TIMEOUT = 10000;
+    public static int SOCKET_TIMEOUT = 1000;
 }

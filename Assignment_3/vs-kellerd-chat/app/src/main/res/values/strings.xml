@@ -5,6 +5,7 @@
     <string name="settings_button">Settings</string>
     <string name="title_activity_settings">Settings</string>
     <string name="chat_placeholder">Successfully registered</string>
+    <string name="chat_getLog">get chat log</string>
     <string name="registration_fail">Registration failed. Check your settings and retry...</string>
     <string name="deregistration_fail">Deregistration failed. Please retry...</string>
     <!-- Strings related to Settings -->

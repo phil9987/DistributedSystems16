@@ -2,8 +2,13 @@ package ch.ethz.inf.vs.a3.clock;
 
 import android.content.Intent;
 import android.util.ArrayMap;
+import android.util.Log;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -43,18 +48,90 @@ public class VectorClock implements Clock {
 
     @Override
     public boolean happenedBefore(Clock other) {
-        return false;
+        VectorClock otherVectorClock = (VectorClock) other;
+        Boolean smalleq = false;
+        for (Map.Entry<Integer, Integer> entry : vector.entrySet()) {
+            Integer time = entry.getValue();
+            Integer otherTime;
+            if(otherVectorClock.getVector().containsKey(entry.getKey())) {
+                 otherTime = otherVectorClock.getTime(entry.getKey());
+            }   else{
+                otherTime = time;
+            }
+            if (otherTime - time >= 0) {
+                smalleq = true;
+            } else {
+                smalleq = false;
+                break;
+            }
+        }
+        return smalleq;
     }
 
     @Override
     public String toString() {
-        // TODO: map to json string
-        return "";
+        JSONObject clock = new JSONObject();
+        if(vector != null){
+            if (!vector.isEmpty()){
+                for (Map.Entry<Integer, Integer> entry : vector.entrySet()) {
+                    String pid = entry.getKey().toString();
+                    int time = entry.getValue();
+                    try {
+                        clock.put(pid, time);
+                    } catch (JSONException e){
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        return clock.toString();
     }
 
     @Override
     public void setClockFromString(String clock) {
-        // TODO: parse form json string
+        Map<Integer, Integer> newVector = new HashMap<>();
+        Boolean failed = false;
+        JSONObject responseMessage;
+        try{
+             responseMessage = new JSONObject(clock);
+        }   catch (JSONException e){
+            responseMessage = null;
+        }
+        if (responseMessage != null){
+            Iterator<?> keys = responseMessage.keys();
+
+            while( keys.hasNext() && !failed) {
+                String key = (String)keys.next();
+                int pid = -1;
+                int time = -1;
+                try {
+                    pid = Integer.parseInt(key);
+                } catch (NumberFormatException e) {
+                    failed = true;
+                }
+                try {
+                    time = responseMessage.getInt(key);
+                } catch (JSONException e){
+                    failed = true;
+                }
+                if(!failed){
+                    newVector.put(pid,time);
+                }
+            }
+        }else{
+            failed = true;
+        }
+
+        if(!failed){
+            if (this.vector != null){       // add elements of newVector to this.vector
+                for (Map.Entry<Integer, Integer> entry : newVector.entrySet()) {
+                    this.vector.put(entry.getKey(), entry.getValue());
+                }
+            }else{
+                this.vector = newVector;
+            }
+        }
+
     }
 
     /*

@@ -77,16 +77,14 @@ public class VectorClock implements Clock {
     @Override
     public String toString() {
         JSONObject clock = new JSONObject();
-        if(vector != null){
-            if (!vector.isEmpty()){
-                for (Map.Entry<Integer, Integer> entry : vector.entrySet()) {
-                    String pid = entry.getKey().toString();
-                    int time = entry.getValue();
-                    try {
-                        clock.put(pid, time);
-                    } catch (JSONException e){
-                        e.printStackTrace();
-                    }
+        if(vector != null && !vector.isEmpty()) {
+            for (Map.Entry<Integer, Integer> entry : vector.entrySet()) {
+                String pid = entry.getKey().toString();
+                int time = entry.getValue();
+                try {
+                    clock.put(pid, time);
+                } catch (JSONException e){
+                    e.printStackTrace();
                 }
             }
         }

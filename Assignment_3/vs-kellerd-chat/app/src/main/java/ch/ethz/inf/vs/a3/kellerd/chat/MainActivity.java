@@ -30,14 +30,12 @@ import ch.ethz.inf.vs.a3.udpclient.NetworkConsts;
 public class MainActivity extends AppCompatActivity {
     private static final String MAINACTIVITY_TAG = "MAINACTIVITY";
     private EditText mUsername_field;
-    private String mPort;
+    private int mPort;
     private String mServerAddress;
     private DatagramSocket socket;
-    private JSONObject messageJson;
-    private JSONObject messageHdr;
     private UUID mUUID;
 
-    public SharedPreferences SharedPreferences;
+    public SharedPreferences sharedPreferences;
     private String username;
 
     private boolean registered = false;
@@ -47,12 +45,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Log.d(MAINACTIVITY_TAG, "start main activity");
+
         mUsername_field = (EditText) findViewById(R.id.username_field);
+
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
-        SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        mServerAddress = NetworkConsts.SERVER_ADDRESS;
+        mPort = NetworkConsts.UDP_PORT;
+
         mUUID = UUID.randomUUID();
-
-
     }
 
     public void onJoinButtonClick(View view) {
@@ -61,19 +65,26 @@ public class MainActivity extends AppCompatActivity {
         registrationThread.execute(username);
     }
 
-    public class RegistrationThread extends AsyncTask<String, Integer, Boolean>{
+    public void onSettingsButtonClick(View view) {
+        Intent settingsIntent = new Intent(this, SettingsActivity.class);
+        this.startActivity(settingsIntent);
+    }
+
+    public class RegistrationThread extends AsyncTask<String, Integer, Boolean> {
         private final String REGISTRATION_TAG = "Registration Thread";
+
         @Override
         protected Boolean doInBackground(String... params) {
             Log.d(REGISTRATION_TAG, "started AsyncTask!");
+
             String userName = params[0];
-            register(userName);
-            for (int registration_attempts = 1; registration_attempts<5; registration_attempts++){
-                if (registered){
-                    break;
-                }
-                else register(userName);
-            }
+            int registration_attempts = 0;
+
+            do {
+                register(userName);
+                registration_attempts++;
+            } while (!registered && registration_attempts < 5);
+
             return registered;
         }
 
@@ -86,44 +97,47 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(chatIntent);
             }
             else {
-                Toast.makeText(getApplicationContext(),R.string.registration_fail, Toast.LENGTH_SHORT);
+                Toast.makeText(getApplicationContext(),R.string.registration_fail, Toast.LENGTH_SHORT).show();
             }
         }
 
-        protected Boolean register(String username){
-            messageJson = new JSONObject();
-            messageHdr = new JSONObject();
-            String userName = username;
+        private void register(String username){
+            JSONObject messageJson = new JSONObject();
+            JSONObject messageHdr = new JSONObject();
+            JSONObject messageBody = new JSONObject();
 
-            Map prefMap = SharedPreferences.getAll();
-            //mServerAddress = (String) prefMap.get("server_address_preference");
-            //mPort = (String) prefMap.get("server_port_preference");
-            mServerAddress = SharedPreferences.getString(SettingsActivity.KEY_PREF_SERVER_ADDRESS, mServerAddress);
-            mPort = SharedPreferences.getString(SettingsActivity.KEY_PREF_SERVER_PORT, mPort);
+            mServerAddress = sharedPreferences.getString(SettingsActivity.KEY_PREF_SERVER_ADDRESS, mServerAddress);
+            mPort = Integer.valueOf(sharedPreferences.getString(SettingsActivity.KEY_PREF_SERVER_PORT, Integer.toString(mPort)));
 
             try {
-                messageHdr.put("username", userName);
+                messageHdr.put("username", username);
                 messageHdr.put("uuid", mUUID.toString());
                 messageHdr.put("timestamp", "{}");
                 messageHdr.put("type", MessageTypes.REGISTER);
-                JSONObject messageBody = new JSONObject();
+
                 messageJson.put("header", messageHdr);
-                messageJson.put("body", messageBody);
+                messageJson.put("body", messageBody); // Body is empty for registration
+
                 socket = new DatagramSocket();
+
                 Log.d(REGISTRATION_TAG, "recipient address: " + (mServerAddress) + ":" + mPort);
                 InetAddress address = InetAddress.getByName(mServerAddress);
                 byte[] message = messageJson.toString().getBytes(StandardCharsets.UTF_8);
+
                 Log.d(REGISTRATION_TAG, "messageLength = " + message.length);
-                DatagramPacket packet = new DatagramPacket(message, message.length, address, Integer.valueOf(mPort));
-                Log.d(REGISTRATION_TAG, "data sent: " + messageJson);
+                DatagramPacket packet = new DatagramPacket(message, message.length, address, mPort);
+
+                Log.d(REGISTRATION_TAG, "send data: " + messageJson);
                 socket.send(packet);
                 socket.setSoTimeout(NetworkConsts.SOCKET_TIMEOUT);
 
                 byte[] response = new byte[NetworkConsts.PAYLOAD_SIZE];
-                DatagramPacket responsePacket = new DatagramPacket(response,response.length);
+                DatagramPacket responsePacket = new DatagramPacket(response, response.length);
                 socket.receive(responsePacket);
+
                 String responseString = new String(responsePacket.getData());
                 Log.d(REGISTRATION_TAG, "response: " + responseString);
+
                 JSONObject responseMessage = new JSONObject(responseString);
                 if (responseMessage.getJSONObject("header").get("type").equals("ack")){
                     registered = true;
@@ -133,15 +147,6 @@ public class MainActivity extends AppCompatActivity {
 //                e.printStackTrace();
 //              Log.d(Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT);
             }
-            finally {
-                return registered ;
-            }
-
         }
-    }
-
-    public void onSettingsButtonClick(View view) {
-        Intent settingsIntent = new Intent(this, SettingsActivity.class);
-        this.startActivity(settingsIntent);
     }
 }

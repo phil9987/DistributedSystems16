@@ -32,14 +32,12 @@ public class MainActivity extends AppCompatActivity {
     private EditText mUsername_field;
     private int mPort;
     private String mServerAddress;
-    private DatagramSocket socket;
     private UUID mUUID;
 
     public SharedPreferences sharedPreferences;
     private String username;
 
     private boolean registered = false;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,6 +92,9 @@ public class MainActivity extends AppCompatActivity {
                 Intent chatIntent = new Intent(getApplicationContext(), ChatActivity.class);
                 chatIntent.putExtra("username", username);
                 chatIntent.putExtra("uuid", mUUID.toString());
+
+                //Toast.makeText(getApplicationContext(),R.string.registration_success, Toast.LENGTH_SHORT).show();
+
                 startActivity(chatIntent);
             }
             else {
@@ -118,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
                 messageJson.put("header", messageHdr);
                 messageJson.put("body", messageBody); // Body is empty for registration
 
-                socket = new DatagramSocket();
+                DatagramSocket socket = new DatagramSocket();
 
                 Log.d(REGISTRATION_TAG, "recipient address: " + (mServerAddress) + ":" + mPort);
                 InetAddress address = InetAddress.getByName(mServerAddress);

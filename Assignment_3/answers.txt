@@ -1,0 +1,28 @@
+# Taks 4
+
+Group members: 
+
+- Simon Bienz
+- Philip Junker
+- David Keller
+
+## Q&A
+
+1. What are the main advantages of using Vector Clocks over Lamport timestamps?
+
+	Vector Clocks guarantee the _strong clock consistency condition_. This means the clock of two events can be compared and for every process it can be determined if this event happened before or not the other one (if there is a causal relation between the two events). This is the additional condition to the _clock consistency condition_ also satisfied by  Lamport timestamps.
+
+2. Give the two conditions for two Vector Clocks to be causally dependent?
+
+	Two clocks are causally dependent if and only if they are from the same process or one clock was the send event in one process and the other clock the receiving event in another process.
+
+3. Does a clock tick happen before or after the sending of a message. What are the implications of changing this?
+
+	A clock tick happens before sending of a message. Otherwise the events that don’t increase the clock and happen between the sending or receiving before the next send are not «tracked» by this clock.
+
+4. Vector Clocks
+
+	![](vectorclocks.png)
+
+5. Read the paper _Dynamic Vector Clocks for Consistent Ordering of Events in Dynamic Distributed Applications_ by Tobias Landes that gives a good overview on the discussed methods. In particular, which problem of vector clocks is solved in the paper?
+

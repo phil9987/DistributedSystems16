@@ -1,0 +1,30 @@
+# Taks 4
+
+Group members: 
+
+- Simon Bienz
+- Philip Junker
+- David Keller
+
+## Q&A
+
+1. What are the main advantages of using Vector Clocks over Lamport timestamps?
+
+	Vector Clocks guarantee the _strong clock consistency condition_. This means the clock of two events can be compared and for every process it can be determined if this event happened before or not the other one (if there is a causal relation between the two events). This is the additional condition to the _clock consistency condition_ also satisfied by  Lamport timestamps.
+
+2. Give the two conditions for two Vector Clocks to be causally dependent?
+
+	Two clocks are causally dependent if and only if they are from the same process or one clock was the send event in one process and the other clock the receiving event in another process.
+
+3. Does a clock tick happen before or after the sending of a message. What are the implications of changing this?
+
+	A clock tick happens before sending of a message. Otherwise the events that don’t increase the clock and happen between the sending or receiving before the next send are not «tracked» by this clock.
+
+4. Vector Clocks
+
+	![](vectorclocks.png)
+
+5. Read the paper _Dynamic Vector Clocks for Consistent Ordering of Events in Dynamic Distributed Applications_ by Tobias Landes that gives a good overview on the discussed methods. In particular, which problem of vector clocks is solved in the paper?
+
+	Using vector clocks one have to know the exact number of processes interfering with each other in advance. Otherwise it's not possible to match an entry in the vector with the particular process it belongs to. Therefore, using vector clocks in an environment where processes are added and removed dynamically is not possible. Dynamic vector clocks solve this problem by storing the state of other processes in a two dimensional array. Each entry specifies the process number to which the corresponding clock value belongs to. In this array are only the clocks of interest stored, for example all the clocks of other processes a process interacts with. From time to time there can a garbage collection being run to delete the entries of terminated processes that are still stored in some tables. For g.c. all the processes have to be halted. 
+

@@ -22,7 +22,7 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.Map;
-import java.util.PriorityQueue;
+import ch.ethz.inf.vs.a3.queue.PriorityQueue;
 import java.util.UUID;
 
 import ch.ethz.inf.vs.a3.message.Message;
@@ -57,7 +57,7 @@ public class ChatActivity extends AppCompatActivity {
         mUUID = UUID.fromString(getIntent().getStringExtra("uuid"));
 
         msgComparator = new MessageComparator();
-        msgPriorityQueue = new PriorityQueue<Message>(25, msgComparator);
+        msgPriorityQueue = new PriorityQueue<Message>(msgComparator);
 
         chatlog = (TextView) findViewById(R.id.textViewChatLog);
     }
@@ -177,7 +177,7 @@ public class ChatActivity extends AppCompatActivity {
             int i = 0;
             String chatlogString = "";
             while(!msgPriorityQueue.isEmpty()){
-                Message m = msgPriorityQueue.remove();
+                Message m = msgPriorityQueue.poll();
                 chatlogString += m.getContent() + "\n";
                 //Log.d(CHATACTIVITY_TAG, "element " + i++ + " " +  m.getContent());
             }
